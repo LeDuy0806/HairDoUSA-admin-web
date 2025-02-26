@@ -14,13 +14,24 @@ const CardWrapper = ({title, description, backButtonHref, children}) => {
   const navigate = useNavigate();
 
   return (
-    <Card className="shadow-lg m-8">
-      <CardHeader>
-        <CardTitle className="text-2xl font-semibold text-center">{title}</CardTitle>
+    <Card className="m-8 shadow-lg">
+      {backButtonHref && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="mx-6"
+          onClick={() => navigate(backButtonHref, {replace: true})}>
+          <ChevronLeft className="" />
+        </Button>
+      )}
+      <CardHeader className="pb-6">
+        <CardTitle className="text-center text-2xl font-semibold">
+          {title}
+        </CardTitle>
         <CardDescription className="text-center">{description}</CardDescription>
       </CardHeader>
       <CardContent>{children}</CardContent>
-      <CardFooter />
+      <CardFooter className="pb-6" />
     </Card>
   );
 };

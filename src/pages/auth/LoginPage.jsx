@@ -1,13 +1,20 @@
-import { useState } from 'react';
 import CardWrapper from '@/components/auth/CardWrapper';
-import { useForm } from 'react-hook-form';
+import {Button} from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {Input} from '@/components/ui/input';
+import {ROUTE} from '@/constants/route';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {useState} from 'react';
+import {useForm} from 'react-hook-form';
 import {useNavigate} from 'react-router';
 import {z} from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ROUTE } from '@/constants/route';
 
 const formSchema = z.object({
   email: z.string().email({
@@ -32,17 +39,21 @@ const LoginPage = () => {
     },
   });
 
-  const onSubmit = async (values) => {
+  const onSubmit = async values => {
     setLoading(true);
     try {
       // Mock API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       console.log('Submitted: ', values);
-      navigate(ROUTE.AUTH.TWO_FACTOR_AUTH);
+      navigate(ROUTE.AUTH.TWO_FACTOR_AUTH, {replace: true});
 
       // Navigate or handle success
-    } catch (error) {
-      // Handle error
+    } catch (err) {
+      form.setError('email', {message: 'Unexpected error, please try again'});
+      form.setError('password', {
+        message: 'Unexpected error, please try again',
+      });
+      console.log('Error when submitting login form: ', err);
     } finally {
       setLoading(false);
     }
@@ -65,7 +76,11 @@ const LoginPage = () => {
                       Email <span className="text-red-600">*</span>
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter your email" />
+                      <Input
+                        autoFocus
+                        {...field}
+                        placeholder="Enter your email"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
