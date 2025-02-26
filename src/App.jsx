@@ -1,9 +1,7 @@
+import Routers from './routers';
+
 function App() {
-  return (
-    <>
-      <p>HairDoUSA Admin</p>
-    </>
-  );
+  return <Routers />;
 }
 
 export default App;
