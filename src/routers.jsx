@@ -9,6 +9,8 @@ import TwoFactorAuthPage from './pages/auth/TwoFactorAuthPage';
 import CustomerDetailPage from './pages/customer/CustomerDetailPage';
 import CustomerPage from './pages/customer/CustomerPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import CouponPage from './pages/coupon/CouponPage';
+import SettingsPage from './pages/settings/SettingsPage';
 
 const Routers = () => {
   return (
@@ -16,7 +18,10 @@ const Routers = () => {
       <Routes>
         <Route element={<AuthLayout />}>
           <Route path={ROUTE.AUTH.LOGIN} element={<LoginPage />} />
-          <Route path={ROUTE.AUTH.TWO_FACTOR_AUTH} element={<TwoFactorAuthPage />} />
+          <Route
+            path={ROUTE.AUTH.TWO_FACTOR_AUTH}
+            element={<TwoFactorAuthPage />}
+          />
         </Route>
 
         <Route element={<MainLayout />}>
@@ -26,6 +31,9 @@ const Routers = () => {
             <Route index element={<CustomerPage />} />
             <Route path=":customerId" element={<CustomerDetailPage />} />
           </Route>
+
+          <Route path={ROUTE.COUPON.ROOT} element={<CouponPage />} />
+          <Route path={ROUTE.SETTINGS.ROOT} element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
