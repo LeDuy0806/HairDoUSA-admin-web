@@ -8,7 +8,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { sidebarData } from '@/constants/sidebar-data';
-import { GalleryVerticalEnd } from 'lucide-react';
+import { GalleryVerticalEnd, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 const AppSidebar = () => {
@@ -28,6 +28,9 @@ const AppSidebar = () => {
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="text-md font-semibold">Hairdo USA</span>
                   <span className="text-sm">Hair Salon</span>
+                </div>
+                <div className="ml-auto">
+                  <ChevronLeft className="size-5" />
                 </div>
               </a>
             </SidebarMenuButton>

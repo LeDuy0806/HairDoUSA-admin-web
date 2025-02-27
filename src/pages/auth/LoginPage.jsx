@@ -16,13 +16,15 @@ import {useForm} from 'react-hook-form';
 import {useNavigate} from 'react-router';
 import {z} from 'zod';
 
+const PASSWORD_MIN_LENGTH = 6;
+
 const formSchema = z.object({
   email: z.string().email({
-    message: 'Please enter a valid email address.',
+    message: 'Please enter a valid email address',
   }),
 
-  password: z.string().min(1, {
-    message: 'Please enter your password.',
+  password: z.string().min(PASSWORD_MIN_LENGTH, {
+    message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters`,
   }),
 });
 
