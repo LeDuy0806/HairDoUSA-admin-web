@@ -6,14 +6,16 @@ import {Outlet} from 'react-router';
 const MainLayout = () => {
   return (
     <SidebarProvider>
-      <main className="flex w-full">
+      <main className="flex h-screen w-full">
         {/* <aside className="w-64">
           <AppSidebar />
         </aside> */}
         <AppSidebar />
-        <div className="flex-1">
+        <div className="flex flex-1 flex-col">
           <AppHeaderBar />
-          <Outlet />
+          <div className="px-10">
+            <Outlet />
+          </div>
         </div>
       </main>
     </SidebarProvider>
