@@ -1,6 +1,7 @@
 export const ROUTE = {
   AUTH: {
     LOGIN: '/login',
+    TWO_FACTOR_AUTH: '/two-factor-authentication',
   },
   DASHBOARD: '/',
   COUPON: {

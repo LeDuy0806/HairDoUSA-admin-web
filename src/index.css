@@ -48,6 +48,8 @@ body,
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.869 0.022 252.894);
+  --chart-profit: oklch(72.27% 0.192 149.58);
+  --chart-loss: oklch(63.68% 0.2078 25.33);
 }
 
 .dark {
