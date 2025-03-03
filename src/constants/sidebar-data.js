@@ -1,5 +1,5 @@
-import { LayoutDashboard, Users, Ticket, Settings2 } from "lucide-react";
-import { ROUTE } from "./route";
+import {LayoutDashboard, Settings2, Ticket, Users} from 'lucide-react';
+import {ROUTE} from './route';
 
 export const sidebarData = [
   {

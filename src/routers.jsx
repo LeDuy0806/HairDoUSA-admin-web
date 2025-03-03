@@ -1,15 +1,15 @@
 import {BrowserRouter, Route, Routes} from 'react-router';
 import {ROUTE} from './constants/route';
-import MainLayout from './layout/MainLayout';
 import AuthLayout from './layout/AuthLayout';
+import MainLayout from './layout/MainLayout';
 
 import LoginPage from './pages/auth/LoginPage';
 import TwoFactorAuthPage from './pages/auth/TwoFactorAuthPage';
 
+import CouponPage from './pages/coupon/CouponPage';
 import CustomerDetailPage from './pages/customer/CustomerDetailPage';
 import CustomerPage from './pages/customer/CustomerPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
-import CouponPage from './pages/coupon/CouponPage';
 import SettingsPage from './pages/settings/SettingsPage';
 
 const Routers = () => {

@@ -18,10 +18,10 @@ import {
 import {Input} from '@/components/ui/input';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {DialogDescription} from '@radix-ui/react-dialog';
+import {Eye, EyeOff} from 'lucide-react';
 import {useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {z} from 'zod';
-import {Eye, EyeOff} from 'lucide-react';
 
 const PASSWORD_MIN_LENGTH = 6;
 
@@ -42,7 +42,7 @@ const formSchema = z
     path: ['confirmPassword'],
   });
 
-const GeneralPasswordField = ({ form, name, label, placeholder  }) => {
+const GeneralPasswordField = ({form, name, label, placeholder}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (

@@ -1,18 +1,18 @@
 import {
   Sidebar,
-  SidebarHeader,
   SidebarContent,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { sidebarData } from '@/constants/sidebar-data';
-import { GalleryVerticalEnd, ChevronLeft } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import {sidebarData} from '@/constants/sidebar-data';
+import {ChevronLeft, GalleryVerticalEnd} from 'lucide-react';
+import {useNavigate} from 'react-router';
 
 const AppSidebar = () => {
-  const { toggleSidebar } = useSidebar();
+  const {toggleSidebar} = useSidebar();
   const navigate = useNavigate();
 
   return (

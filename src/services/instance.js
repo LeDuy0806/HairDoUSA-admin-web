@@ -1,7 +1,7 @@
 import {STORAGE_KEY} from '@/constants/storage-key';
 import axios from 'axios';
 
-const prefixUrl = 'API_URL';
+const prefixUrl = import.meta.env.VITE_API_URL;
 
 const instance = axios.create({
   baseURL: prefixUrl,
@@ -26,10 +26,10 @@ instance.interceptors.request.use(config => {
 
 instance.interceptors.response.use(
   response => {
-    if (response.data?.access_token) {
+    if (response.data?.data?.accessToken) {
       localStorage.setItem(
         STORAGE_KEY.AUTH.ACCESS_TOKEN,
-        response.data?.access_token,
+        response.data?.data?.accessToken,
       );
     }
 

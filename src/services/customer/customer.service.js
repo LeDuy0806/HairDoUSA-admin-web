@@ -1,5 +1,5 @@
 import instance from '../instance';
 
 export const customerService = {
-  getAll: async () => await instance.get('/customer'),
+  getAll: async () => await instance.get('/customer/list'),
 };

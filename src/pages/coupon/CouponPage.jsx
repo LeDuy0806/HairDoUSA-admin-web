@@ -67,14 +67,18 @@ const CouponPage = () => {
 
   const handleSearchChange = e => {
     setSearchValue(e.target.value);
-  }
+  };
 
   return (
     <div className="h-full w-full">
       <h3 className="text-2xl font-semibold">Coupon</h3>
       <Button className="my-6">+ Add New Coupon</Button>
       <div className="mb-5 flex items-center justify-between">
-        <Input onChange={handleSearchChange} className="w-86" placeholder="Search by name, category,..." />
+        <Input
+          onChange={handleSearchChange}
+          className="w-86"
+          placeholder="Search by name, category,..."
+        />
         <FilterSelect
           options={filterOptions}
           onValueChange={value => console.log(value)}

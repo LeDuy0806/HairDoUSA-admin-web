@@ -1,10 +1,10 @@
+import ChartCard from '@/components/dashboard/ChartCard';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-import { ChevronDown } from "lucide-react";
-import ChartCard from "@/components/dashboard/ChartCard";
+} from '@/components/ui/collapsible';
+import {ChevronDown} from 'lucide-react';
 
 const newCustomersData = [
   {
@@ -78,7 +78,7 @@ const newCouponsData = [
 
 const newCustomersChartConfig = {
   customers: {
-    label: "Customers",
+    label: 'Customers',
   },
 };
 
@@ -87,7 +87,6 @@ const newCouponsChartConfig = {
     label: 'Coupons',
   },
 };
-
 
 const DashboardPage = () => {
   return (

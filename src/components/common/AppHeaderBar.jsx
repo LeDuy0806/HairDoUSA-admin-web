@@ -8,11 +8,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {useAuthContext} from '@/context/AuthContext';
 import {Dialog, DialogTrigger} from '@radix-ui/react-dialog';
 import {useState} from 'react';
 
 const AppHeaderBar = () => {
   const [open, setOpen] = useState(false);
+  const {logout} = useAuthContext();
 
   const handleDialogConfirmClick = () => {
     setOpen(false);
@@ -44,7 +46,7 @@ const AppHeaderBar = () => {
               <DropdownMenuItem>Profile</DropdownMenuItem>
             </DialogTrigger>
             <DropdownMenuItem>Support</DropdownMenuItem>
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
           <ProfileDialog onConfirmClick={handleDialogConfirmClick} />
         </DropdownMenu>

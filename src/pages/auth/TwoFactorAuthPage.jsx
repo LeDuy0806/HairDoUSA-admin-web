@@ -1,10 +1,7 @@
 import CardWrapper from '@/components/auth/CardWrapper';
 import {ROUTE} from '@/constants/route';
-import {useState} from 'react';
 
-import {zodResolver} from '@hookform/resolvers/zod';
-import {useForm} from 'react-hook-form';
-import {z} from 'zod';
+import {useFormContext} from 'react-hook-form';
 
 import {Button} from '@/components/ui/button';
 import {
@@ -17,47 +14,51 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {InputOTP, InputOTPGroup, InputOTPSlot} from '@/components/ui/input-otp';
+import {useVerifyLoginOtpMutation} from '@/services/auth';
+import {useEffect} from 'react';
 import {useNavigate} from 'react-router';
-
-const formSchema = z.object({
-  otp: z.string().min(6, {
-    message: 'Your one-time password must be 6 characters.',
-  }),
-});
+import {toast} from 'sonner';
 
 const TwoFactorAuthPage = () => {
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
+  const form = useFormContext();
+  const {email, otp} = form.watch();
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      otp: '',
-    },
-  });
+  useEffect(() => {
+    if (!email) {
+      navigate(ROUTE.AUTH.LOGIN, {replace: true});
+    }
+  }, [email]);
+
+  const verifyLoginOtpMutation = useVerifyLoginOtpMutation();
+  const loading = verifyLoginOtpMutation.isPending;
 
   const onSubmit = async value => {
-    setLoading(true);
-    try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      if (value.otp !== '123456') {
-        form.setError('otp', {
-          message: 'Invalid OTP code, please check your email again',
-        });
-      } else {
-        console.log('Submitted: ', value);
-        navigate(ROUTE.DASHBOARD, {replace: true});
-      }
-    } catch (err) {
-      form.setError('otp', {
-        message: 'Unexpected error, please try again',
-      });
-      console.log('Error when submitting OTP form: ', err);
-    } finally {
-      setLoading(false);
-    }
+    verifyLoginOtpMutation.mutate(
+      {
+        email,
+        otp: value.otp,
+      },
+      {
+        onSuccess: async res => {
+          console.log(res);
+          if (res.success) {
+            toast.success(res.message);
+            location.href = ROUTE.DASHBOARD;
+          } else {
+            form.setError('otp', res.message);
+          }
+        },
+        onError: err => {
+          form.setError('otp', {
+            message:
+              err?.response?.data?.message ||
+              'Unexpected error, please try again',
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -95,7 +96,11 @@ const TwoFactorAuthPage = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" isLoading={loading}>
+            <Button
+              type="submit"
+              className="w-full"
+              isLoading={loading}
+              disabled={otp?.length < 6 || loading}>
               Verify
             </Button>
           </form>

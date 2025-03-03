@@ -1,6 +1,50 @@
+import {ROUTE} from '@/constants/route';
+import {useAuthContext} from '@/context/AuthContext';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {useEffect} from 'react';
+import {FormProvider, useForm} from 'react-hook-form';
 import {Outlet} from 'react-router';
+import {z} from 'zod';
+
+const PASSWORD_MIN_LENGTH = 6;
+const OTP_LENGTH = 6;
+
+const formSchema = z.object({
+  email: z.string().email({
+    message: 'Please enter a valid email address',
+  }),
+
+  password: z.string().min(PASSWORD_MIN_LENGTH, {
+    message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters`,
+  }),
+
+  otp: z
+    .string()
+    .min(OTP_LENGTH, {
+      message: `OTP must be ${OTP_LENGTH} characters`,
+    })
+    .optional()
+    .or(z.literal('')),
+});
 
 const AuthLayout = () => {
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      otp: '',
+    },
+  });
+
+  const {isAuthenticated, isLoadingUser} = useAuthContext();
+
+  useEffect(() => {
+    if (isAuthenticated && !isLoadingUser) {
+      location.href = ROUTE.DASHBOARD;
+    }
+  }, [isAuthenticated, isLoadingUser]);
+
   return (
     <div className="flex h-screen w-full">
       <div className="w-1/2">
@@ -11,7 +55,9 @@ const AuthLayout = () => {
         />
       </div>
       <div className="flex w-1/2 items-center justify-center">
-        <Outlet />
+        <FormProvider {...form}>
+          <Outlet />
+        </FormProvider>
       </div>
     </div>
   );

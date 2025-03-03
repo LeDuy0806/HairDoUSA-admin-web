@@ -7,14 +7,12 @@ import {
 } from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {DialogDescription} from '@radix-ui/react-dialog';
 import PassChangeDialog from './PassChangeDialog';
-import { DialogDescription } from '@radix-ui/react-dialog';
 
 const ProfileDialogContent = ({onConfirmClick}) => {
   return (
-    <DialogContent
-      className="sm:max-w-[425px]"
-      >
+    <DialogContent className="sm:max-w-[425px]">
       <DialogHeader>
         <DialogTitle className="text-center">Profile</DialogTitle>
         <DialogDescription />

@@ -5,14 +5,22 @@ import {
 } from '@/components/ui/chart';
 import {Bar, BarChart} from 'recharts';
 
-const ChartCard = ({title, chartDataKey, chartData, chartConfig, timeSpanText}) => {
+const ChartCard = ({
+  title,
+  chartDataKey,
+  chartData,
+  chartConfig,
+  timeSpanText,
+}) => {
   const lastTimeSpanAmount = chartData[chartData.length - 2][chartDataKey] || 0;
   const currentTimeSpanAmount =
     chartData[chartData.length - 1][chartDataKey] || 0;
 
   const difference = currentTimeSpanAmount - lastTimeSpanAmount;
   const percentageChange =
-    lastTimeSpanAmount > 0 ? ((difference / lastTimeSpanAmount) * 100).toFixed(0) : 0;
+    lastTimeSpanAmount > 0
+      ? ((difference / lastTimeSpanAmount) * 100).toFixed(0)
+      : 0;
 
   const barColor =
     currentTimeSpanAmount >= lastTimeSpanAmount

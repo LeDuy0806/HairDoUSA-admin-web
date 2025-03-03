@@ -7,11 +7,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const FilterSelect = ({
-  options = [],
-  onValueChange,
-  ...props
-}) => {
+const FilterSelect = ({options = [], onValueChange, ...props}) => {
   return (
     <Select onValueChange={onValueChange}>
       <SelectTrigger className="w-32" {...props}>
@@ -19,8 +15,10 @@ const FilterSelect = ({
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          {options?.map((option) => (
-            <SelectItem key={option?.value} value={option.value}>{option.label}</SelectItem>
+          {options?.map(option => (
+            <SelectItem key={option?.value} value={option.value}>
+              {option.label}
+            </SelectItem>
           ))}
         </SelectGroup>
       </SelectContent>

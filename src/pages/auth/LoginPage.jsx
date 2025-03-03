@@ -1,4 +1,5 @@
 import CardWrapper from '@/components/auth/CardWrapper';
+import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
 import {Button} from '@/components/ui/button';
 import {
   Form,
@@ -10,57 +11,57 @@ import {
 } from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
 import {ROUTE} from '@/constants/route';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {useState} from 'react';
-import {useForm} from 'react-hook-form';
+import {useLoginMutation} from '@/services/auth';
+import {AlertCircle, Eye, EyeOff} from 'lucide-react';
+import {useEffect, useState} from 'react';
+import {useFormContext} from 'react-hook-form';
 import {useNavigate} from 'react-router';
-import {z} from 'zod';
-import {Eye, EyeOff} from 'lucide-react';
-
-const PASSWORD_MIN_LENGTH = 6;
-
-const formSchema = z.object({
-  email: z.string().email({
-    message: 'Please enter a valid email address',
-  }),
-
-  password: z.string().min(PASSWORD_MIN_LENGTH, {
-    message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters`,
-  }),
-});
+import {toast} from 'sonner';
 
 const LoginPage = () => {
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const form = useFormContext();
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [commonError, setCommonError] = useState(null);
+  const loginMutation = useLoginMutation();
+
+  const loading = loginMutation.isPending;
+
+  const {email, password} = form.watch();
+
+  useEffect(() => {
+    if (commonError) {
+      setCommonError(null);
+    }
+  }, [email, password]);
 
   const onSubmit = async values => {
-    setLoading(true);
-    try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Submitted: ', values);
-      navigate(ROUTE.AUTH.TWO_FACTOR_AUTH, {replace: true});
-
-      // Navigate or handle success
-    } catch (err) {
-      form.setError('email', {message: 'Unexpected error, please try again'});
-      form.setError('password', {
-        message: 'Unexpected error, please try again',
-      });
-      console.log('Error when submitting login form: ', err);
-    } finally {
-      setLoading(false);
-    }
+    loginMutation.mutate(
+      {
+        account: values.email,
+        password: values.password,
+      },
+      {
+        onSuccess: res => {
+          if (res.success) {
+            navigate(ROUTE.AUTH.TWO_FACTOR_AUTH, {
+              replace: true,
+            });
+            toast.success(res.message);
+          } else {
+            setCommonError(res.message);
+          }
+        },
+        onError: err => {
+          setCommonError(
+            err?.response?.data?.message ??
+              'Unexpected error, please try again',
+          );
+        },
+      },
+    );
   };
 
   return (
@@ -127,6 +128,15 @@ const LoginPage = () => {
                 )}
               />
             </div>
+            {commonError && (
+              <Alert
+                variant="destructive"
+                className="border-red-500 bg-red-50/50">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{commonError}</AlertDescription>
+              </Alert>
+            )}
             <Button type="submit" className="w-full" isLoading={loading}>
               Continue
             </Button>

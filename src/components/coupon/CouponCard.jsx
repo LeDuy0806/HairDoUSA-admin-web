@@ -14,7 +14,7 @@ const CouponCard = ({title, description, validFrom, expiredDate}) => {
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardFooter className="flex flex-col items-start gap-3 my-3">
+      <CardFooter className="my-3 flex flex-col items-start gap-3">
         <div className="flex gap-2">
           <CalendarDays className="text-muted-foreground h-4 w-4" />
           <p className="text-muted-foreground text-sm">From: {validFrom}</p>
