@@ -13,7 +13,7 @@ const MainLayout = () => {
         <AppSidebar />
         <div className="flex flex-1 flex-col">
           <AppHeaderBar />
-          <div className="px-10">
+          <div className="px-10 pb-10">
             <Outlet />
           </div>
         </div>
