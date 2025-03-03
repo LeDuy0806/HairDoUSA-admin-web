@@ -15,6 +15,7 @@ import {useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {useNavigate} from 'react-router';
 import {z} from 'zod';
+import {Eye, EyeOff} from 'lucide-react';
 
 const PASSWORD_MIN_LENGTH = 6;
 
@@ -32,6 +33,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -97,11 +99,28 @@ const LoginPage = () => {
                       Password <span className="text-red-600">*</span>
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        type="password"
-                        placeholder="Enter your password"
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? 'text' : 'password'}
+                          {...field}
+                          placeholder="Enter your password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-0 right-1 h-full hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}>
+                          {showPassword ? (
+                            <EyeOff className="size-5" />
+                          ) : (
+                            <Eye className="size-5" />
+                          )}
+                          <span className="sr-only">
+                            {showPassword ? 'Hide password' : 'Show password'}
+                          </span>
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

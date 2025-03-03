@@ -17,10 +17,11 @@ import {
 } from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
 import {zodResolver} from '@hookform/resolvers/zod';
-import { DialogDescription } from '@radix-ui/react-dialog';
+import {DialogDescription} from '@radix-ui/react-dialog';
 import {useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {z} from 'zod';
+import {Eye, EyeOff} from 'lucide-react';
 
 const PASSWORD_MIN_LENGTH = 6;
 
@@ -40,6 +41,54 @@ const formSchema = z
     message: 'Confirm password does not match',
     path: ['confirmPassword'],
   });
+
+const GeneralPasswordField = ({ form, name, label, placeholder  }) => {
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({field}) => (
+        <FormItem>
+          <div className="grid grid-cols-5 items-center gap-4">
+            <FormLabel className="col-span-2">
+              {label} <span className="text-red-600">*</span>
+            </FormLabel>
+            <FormControl className="col-span-3">
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  {...field}
+                  placeholder={placeholder}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-0 right-1 h-full hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? (
+                    <EyeOff className="size-5" />
+                  ) : (
+                    <Eye className="size-5" />
+                  )}
+                  <span className="sr-only">
+                    {showPassword ? 'Hide password' : 'Show password'}
+                  </span>
+                </Button>
+              </div>
+            </FormControl>
+          </div>
+          <div className="grid grid-cols-5 items-center gap-4">
+            <div className="col-span-2" />
+            <FormMessage className="col-span-3" />
+          </div>
+        </FormItem>
+      )}
+    />
+  );
+};
 
 const PassChangeDialog = () => {
   const [loading, setLoading] = useState(false);
@@ -68,13 +117,13 @@ const PassChangeDialog = () => {
     }
   };
 
-  const handleOpenChanged = (open) => {
+  const handleOpenChanged = open => {
     setOpen(open);
     if (!open) {
       form.reset();
     }
   };
-  
+
   const handleCancelClick = () => {
     setOpen(false);
     form.reset();
@@ -92,62 +141,26 @@ const PassChangeDialog = () => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
+            <GeneralPasswordField
+              form={form}
               name="currentPassword"
-              render={({field}) => (
-                <FormItem>
-                  <FormLabel>
-                    Current Password <span className="text-red-600">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter current password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Current Password"
+              type="password"
+              placeholder="Enter current password"
             />
-            <FormField
-              control={form.control}
+            <GeneralPasswordField
+              form={form}
               name="newPassword"
-              render={({field}) => (
-                <FormItem>
-                  <FormLabel>
-                    New Password <span className="text-red-600">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter new password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="New Password"
+              type="password"
+              placeholder="Enter new password"
             />
-            <FormField
-              control={form.control}
+            <GeneralPasswordField
+              form={form}
               name="confirmPassword"
-              render={({field}) => (
-                <FormItem>
-                  <FormLabel>
-                    Confirm Password <span className="text-red-600">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Confirm new password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Confirm New Password"
+              type="password"
+              placeholder="Enter confirm new password"
             />
             <DialogFooter className="gap-2">
               <Button

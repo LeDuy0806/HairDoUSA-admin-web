@@ -1,15 +1,16 @@
-import ChartCard from '@/components/dashboard/ChartCard';
-import { Button } from '@/components/ui/button';
+import FilterSelect from '@/components/common/FilterSelect';
+import CouponCard from '@/components/coupon/CouponCard';
+import {Button} from '@/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { Input } from '@/components/ui/input';
+import {Input} from '@/components/ui/input';
+import useDebounce from '@/hooks/use-debounce';
+import {isoStringToShortDate} from '@/utils/DateTimeConverter';
 import {ChevronDown} from 'lucide-react';
-import FilterSelect from '@/components/common/FilterSelect';
-import CouponCard from '@/components/coupon/CouponCard';
-import { isoStringToShortDate } from '@/utils/DateTimeConverter';
+import {useEffect, useState} from 'react';
 
 const filterOptions = [
   {label: 'All', value: 'ALL'},
@@ -57,12 +58,23 @@ const tempCoupons = [
 ];
 
 const CouponPage = () => {
+  const [searchValue, setSearchValue] = useState('');
+  const debounceSearchValue = useDebounce(searchValue);
+
+  useEffect(() => {
+    console.log('Debounce search value: ', debounceSearchValue);
+  }, [debounceSearchValue]);
+
+  const handleSearchChange = e => {
+    setSearchValue(e.target.value);
+  }
+
   return (
     <div className="h-full w-full">
       <h3 className="text-2xl font-semibold">Coupon</h3>
       <Button className="my-6">+ Add New Coupon</Button>
       <div className="mb-5 flex items-center justify-between">
-        <Input className="w-86" placeholder="Search by name, category,..." />
+        <Input onChange={handleSearchChange} className="w-86" placeholder="Search by name, category,..." />
         <FilterSelect
           options={filterOptions}
           onValueChange={value => console.log(value)}
