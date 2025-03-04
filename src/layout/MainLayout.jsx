@@ -8,6 +8,7 @@ import {Outlet} from 'react-router';
 
 const MainLayout = () => {
   const {isAuthenticated, isLoadingUser} = useAuthContext();
+
   useEffect(() => {
     if (!isAuthenticated && !isLoadingUser) {
       location.href = ROUTE.AUTH.LOGIN;
@@ -17,9 +18,6 @@ const MainLayout = () => {
   return (
     <SidebarProvider>
       <main className="flex h-screen w-full">
-        {/* <aside className="w-64">
-          <AppSidebar />
-        </aside> */}
         <AppSidebar />
         <div className="flex flex-1 flex-col">
           <AppHeaderBar />

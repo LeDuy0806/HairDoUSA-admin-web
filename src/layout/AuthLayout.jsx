@@ -49,7 +49,7 @@ const AuthLayout = () => {
     <div className="flex h-screen w-full">
       <div className="w-1/2">
         <img
-          src="/src/assets/images/frontdoor.webp"
+          src="/assets/images/frontdoor.webp"
           alt="HairDo Frontdoor"
           className="h-full w-full object-cover"
         />

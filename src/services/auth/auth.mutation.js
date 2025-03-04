@@ -20,6 +20,15 @@ export const useVerifyLoginOtpMutation = () => {
   });
 };
 
+export const useChangePasswordMutation = () => {
+  return useMutation({
+    mutationFn: async data => {
+      const res = await authService.changePassword(data);
+      return res.data;
+    },
+  });
+};
+
 export const useLogoutMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
