@@ -6,12 +6,16 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {CalendarDays} from 'lucide-react';
+import OptionDropdown from '@/components/common/OptionDropdown';
 
 const CouponCard = ({title, description, validFrom, expiredDate}) => {
   return (
-    <Card className="w-full cursor-pointer">
+    <Card className="w-full pt-3">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="flex items-center justify-between">
+          {title}
+          <OptionDropdown />
+        </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardFooter className="my-3 flex flex-col items-start gap-3">

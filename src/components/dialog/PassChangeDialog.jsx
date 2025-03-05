@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -17,7 +18,6 @@ import {
 } from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {DialogDescription} from '@radix-ui/react-dialog';
 import {Eye, EyeOff} from 'lucide-react';
 import {useState} from 'react';
 import {useForm} from 'react-hook-form';
@@ -27,15 +27,11 @@ const PASSWORD_MIN_LENGTH = 6;
 
 const formSchema = z
   .object({
-    currentPassword: z.string().min(1, {
-      message: 'Please enter your current password',
-    }),
+    currentPassword: z.string().nonempty('Please enter your current password'),
     newPassword: z.string().min(PASSWORD_MIN_LENGTH, {
       message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters`,
     }),
-    confirmPassword: z.string().min(1, {
-      message: 'Please confirm your new password',
-    }),
+    confirmPassword: z.string().nonempty('Please confirm your new password'),
   })
   .refine(data => data.newPassword === data.confirmPassword, {
     message: 'Confirm password does not match',
@@ -145,21 +141,18 @@ const PassChangeDialog = () => {
               form={form}
               name="currentPassword"
               label="Current Password"
-              type="password"
               placeholder="Enter current password"
             />
             <GeneralPasswordField
               form={form}
               name="newPassword"
               label="New Password"
-              type="password"
               placeholder="Enter new password"
             />
             <GeneralPasswordField
               form={form}
               name="confirmPassword"
               label="Confirm New Password"
-              type="password"
               placeholder="Enter confirm new password"
             />
             <DialogFooter className="gap-2">

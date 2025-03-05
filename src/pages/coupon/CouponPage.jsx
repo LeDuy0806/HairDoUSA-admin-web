@@ -1,6 +1,5 @@
 import FilterSelect from '@/components/common/FilterSelect';
 import CouponCard from '@/components/coupon/CouponCard';
-import {Button} from '@/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
@@ -11,6 +10,8 @@ import useDebounce from '@/hooks/use-debounce';
 import {isoStringToShortDate} from '@/utils/DateTimeConverter';
 import {ChevronDown} from 'lucide-react';
 import {useEffect, useState} from 'react';
+import AddCouponDialog from '@/components/dialog/AddCouponDialog';
+import EditCouponDialog from '@/components/dialog/EditCouponDialog';
 
 const filterOptions = [
   {label: 'All', value: 'ALL'},
@@ -62,7 +63,7 @@ const CouponPage = () => {
   const debounceSearchValue = useDebounce(searchValue);
 
   useEffect(() => {
-    console.log('Debounce search value: ', debounceSearchValue);
+    // console.log('Debounce search value: ', debounceSearchValue);
   }, [debounceSearchValue]);
 
   const handleSearchChange = e => {
@@ -72,7 +73,7 @@ const CouponPage = () => {
   return (
     <div className="h-full w-full">
       <h3 className="text-2xl font-semibold">Coupon</h3>
-      <Button className="my-6">+ Add New Coupon</Button>
+      <AddCouponDialog />
       <div className="mb-5 flex items-center justify-between">
         <Input
           onChange={handleSearchChange}
