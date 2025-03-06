@@ -10,9 +10,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
+import InputPassword from '@/components/ui/input-password';
 import {ROUTE} from '@/constants/route';
 import {useLoginMutation} from '@/services/auth';
-import {AlertCircle, Eye, EyeOff} from 'lucide-react';
+import {AlertCircle} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {useFormContext} from 'react-hook-form';
 import {useNavigate} from 'react-router';
@@ -23,7 +24,6 @@ const LoginPage = () => {
 
   const form = useFormContext();
 
-  const [showPassword, setShowPassword] = useState(false);
   const [commonError, setCommonError] = useState(null);
   const loginMutation = useLoginMutation();
 
@@ -100,28 +100,10 @@ const LoginPage = () => {
                       Password <span className="text-red-600">*</span>
                     </FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type={showPassword ? 'text' : 'password'}
-                          {...field}
-                          placeholder="Enter your password"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-0 right-1 h-full hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}>
-                          {showPassword ? (
-                            <EyeOff className="size-5" />
-                          ) : (
-                            <Eye className="size-5" />
-                          )}
-                          <span className="sr-only">
-                            {showPassword ? 'Hide password' : 'Show password'}
-                          </span>
-                        </Button>
-                      </div>
+                      <InputPassword
+                        {...field}
+                        placeholder="Enter your password"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

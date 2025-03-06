@@ -1,4 +1,4 @@
-import {LayoutDashboard, Settings2, Ticket, Users} from 'lucide-react';
+import {LayoutDashboard, Receipt, Settings2, Ticket, Users} from 'lucide-react';
 import {ROUTE} from './route';
 
 export const sidebarData = [
@@ -12,6 +12,11 @@ export const sidebarData = [
     title: 'Customer',
     url: ROUTE.CUSTOMER.ROOT,
     icon: Users,
+  },
+  {
+    title: 'Appointment',
+    url: ROUTE.APPOINTMENT.ROOT,
+    icon: Receipt,
   },
   {
     title: 'Coupon',

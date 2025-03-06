@@ -1,0 +1,230 @@
+import FormNormalField from '@/components/common/FormNormalField';
+import {Button} from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+
+import {useCreateAdminMutation, useUpdateAdminMutation} from '@/services/user';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {AlertCircle, PencilLine, PlusIcon} from 'lucide-react';
+import {useEffect, useState} from 'react';
+import {useForm} from 'react-hook-form';
+import {toast} from 'sonner';
+import {z} from 'zod';
+import {Alert, AlertDescription, AlertTitle} from '../ui/alert';
+import InputPassword from '../ui/input-password';
+
+const formSchema = z
+  .object({
+    name: z.string().nonempty('Please enter first name'),
+    email: z.string().nonempty('Please enter phone number'),
+    password: z
+      .string()
+      .nonempty('Please enter password')
+      .min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z
+      .string()
+      .nonempty('Please enter confirm password')
+      .min(6, 'Password must be at least 6 characters'),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'Password and confirm password must be the same',
+    path: ['confirmPassword'],
+  });
+
+const AddAdminDialog = ({isEdit, data}) => {
+  const [open, setOpen] = useState(false);
+
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
+
+  console.log(form.formState.errors);
+
+  useEffect(() => {
+    if (data) {
+      form.reset(data);
+    }
+  }, [data]);
+
+  const {name, email, password, confirmPassword} = form.watch();
+
+  useEffect(() => {
+    if (commonError) {
+      setCommonError(null);
+    }
+  }, [email, name, password, confirmPassword]);
+
+  const [commonError, setCommonError] = useState(null);
+  const createAdminMutation = useCreateAdminMutation();
+  const updateAdminMutation = useUpdateAdminMutation(data?._id);
+
+  const loading =
+    createAdminMutation.isPending || updateAdminMutation.isPending;
+
+  const onSubmit = async values => {
+    const handler = isEdit ? updateAdminMutation : createAdminMutation;
+
+    handler.mutate(
+      {
+        ...values,
+        role: 'admin',
+      },
+      {
+        onSuccess: res => {
+          if (res.success) {
+            form.reset();
+            setOpen(false);
+            toast.success(res.message);
+          } else {
+            setCommonError(res.message);
+          }
+        },
+        onError: err => {
+          console.error('Error adding new admin:', err);
+          setCommonError(
+            err?.response?.data?.message || 'Something went wrong',
+          );
+        },
+      },
+    );
+  };
+
+  const handleOpenChanged = open => {
+    setOpen(open);
+    if (!open) {
+      form.reset();
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChanged}>
+      <DialogTrigger asChild>
+        <Button variant={isEdit ? 'outline' : 'default'}>
+          {isEdit ? <PencilLine /> : <PlusIcon />}
+          {isEdit ? 'Edit' : 'Add New Admin'}
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader className="mb-4">
+          <DialogTitle>Add New Admin</DialogTitle>
+          <DialogDescription>
+            Please add a new admin by these information. You cannot add if the
+            admin information already exists in the system.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <FormNormalField
+              form={form}
+              name="name"
+              label="Admin Name"
+              placeholder="Enter admin name"
+            />
+
+            <FormNormalField
+              form={form}
+              name="email"
+              label="Email"
+              placeholder="Enter email"
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({field}) => (
+                <FormItem className="gap-1">
+                  <div className="grid grid-cols-5 items-center gap-4">
+                    <FormLabel className="col-span-2">Password</FormLabel>
+                    <FormControl className="col-span-3">
+                      <div className="relative">
+                        <InputPassword
+                          {...field}
+                          placeholder="Enter your password"
+                        />
+                      </div>
+                    </FormControl>
+                  </div>
+                  <div className="grid grid-cols-5 items-center gap-4">
+                    <div className="col-span-2" />
+                    <FormMessage className="col-span-3" />
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({field}) => (
+                <FormItem className="gap-1">
+                  <div className="grid grid-cols-5 items-center gap-4">
+                    <FormLabel className="col-span-2">
+                      Confirm Password
+                    </FormLabel>
+                    <FormControl className="col-span-3">
+                      <div className="relative">
+                        <InputPassword
+                          {...field}
+                          placeholder="Re-enter your password"
+                        />
+                      </div>
+                    </FormControl>
+                  </div>
+                  <div className="grid grid-cols-5 items-center gap-4">
+                    <div className="col-span-2" />
+                    <FormMessage className="col-span-3" />
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {commonError && (
+              <Alert
+                variant="destructive"
+                className="border-red-500 bg-red-50/50">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{commonError}</AlertDescription>
+              </Alert>
+            )}
+
+            <DialogFooter className="justify-end gap-2">
+              <Button type="submit" isLoading={loading} variant="default">
+                {isEdit ? 'Save' : 'Confirm'}
+              </Button>
+              <DialogClose asChild>
+                <Button type="button" variant="secondary" disabled={loading}>
+                  Close
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default AddAdminDialog;

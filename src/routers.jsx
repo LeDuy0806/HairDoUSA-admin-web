@@ -6,6 +6,7 @@ import MainLayout from './layout/MainLayout';
 import LoginPage from './pages/auth/LoginPage';
 import TwoFactorAuthPage from './pages/auth/TwoFactorAuthPage';
 
+import AppointmentPage from './appointment/AppointmentPage';
 import CouponPage from './pages/coupon/CouponPage';
 import CustomerDetailPage from './pages/customer/CustomerDetailPage';
 import CustomerPage from './pages/customer/CustomerPage';
@@ -31,6 +32,8 @@ const Routers = () => {
             <Route index element={<CustomerPage />} />
             <Route path=":customerId" element={<CustomerDetailPage />} />
           </Route>
+
+          <Route path={ROUTE.APPOINTMENT.ROOT} element={<AppointmentPage />} />
 
           <Route path={ROUTE.COUPON.ROOT} element={<CouponPage />} />
           <Route path={ROUTE.SETTINGS.ROOT} element={<SettingsPage />} />

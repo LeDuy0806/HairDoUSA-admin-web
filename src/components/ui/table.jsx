@@ -1,8 +1,14 @@
 import {cn} from '@/lib/utils';
+import {Loader} from 'lucide-react';
 
-function Table({className, ...props}) {
+function Table({className, isLoading, ...props}) {
   return (
     <div className="relative w-full overflow-auto">
+      {isLoading && (
+        <div className="absolute inset-0 z-[2] flex items-center justify-center rounded-md bg-white/60">
+          <Loader className="size-8 animate-spin" />
+        </div>
+      )}
       <table
         data-slot="table"
         className={cn('w-full caption-bottom text-sm', className)}

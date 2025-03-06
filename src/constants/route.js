@@ -11,6 +11,9 @@ export const ROUTE = {
     ROOT: '/customer',
     DETAIL: id => `/customer/${id}`,
   },
+  APPOINTMENT: {
+    ROOT: '/appointment',
+  },
   SETTINGS: {
     ROOT: '/settings',
   },

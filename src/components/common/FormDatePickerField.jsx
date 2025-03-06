@@ -12,9 +12,14 @@ import {cn} from '@/lib/utils';
 import {CalendarIcon} from 'lucide-react';
 import moment from 'moment-timezone';
 
-
 // Right now when user pick a Date, it will display the day before the picked date because of the timezone of the "moment" library is now  America/Los_Angeles
-const FormDatePickerField = ({form, name, label, placeholder, disabledDate}) => {
+const FormDatePickerField = ({
+  form,
+  name,
+  label,
+  placeholder,
+  disabledDate,
+}) => {
   return (
     <FormField
       control={form.control}

@@ -72,17 +72,18 @@ const CouponPage = () => {
   return (
     <div className="h-full w-full">
       <h3 className="text-2xl font-semibold">Coupon</h3>
-      <AddCouponDialog />
-      <div className="mb-5 flex items-center justify-between">
+
+      <div className="mb-5 flex items-center justify-between gap-4">
         <Input
           onChange={handleSearchChange}
-          className="w-86"
+          className="flex-1"
           placeholder="Search by name, category,..."
         />
         <FilterSelect
           options={filterOptions}
           onValueChange={value => console.log(value)}
         />
+        <AddCouponDialog />
       </div>
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="my-5 [&[data-state=open]>div>svg]:-rotate-180">

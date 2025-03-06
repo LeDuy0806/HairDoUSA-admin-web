@@ -8,8 +8,14 @@ import {
 import {Input} from '@/components/ui/input';
 import {cn} from '@/lib/utils';
 
-
-const FormNormalField = ({form, name, label, placeholder, disabled, ...props}) => {
+const FormNormalField = ({
+  form,
+  name,
+  label,
+  placeholder,
+  disabled,
+  ...props
+}) => {
   return (
     <FormField
       control={form.control}

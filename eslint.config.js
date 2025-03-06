@@ -36,6 +36,7 @@ export default [
       'react/prop-types': 'off',
       'react/jsx-no-target-blank': 'off',
       'react-refresh/only-export-components': 'off',
+      'react/display-name': 'off',
       'prettier/prettier': ['warn', prettierConfig],
     },
   },

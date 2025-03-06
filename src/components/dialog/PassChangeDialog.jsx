@@ -1,12 +1,13 @@
+import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
 import {Button} from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -17,7 +18,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
-import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
 import {useChangePasswordMutation} from '@/services/auth';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {AlertCircle, Eye, EyeOff} from 'lucide-react';

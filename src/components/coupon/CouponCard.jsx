@@ -1,3 +1,4 @@
+import OptionDropdown from '@/components/common/OptionDropdown';
 import {
   Card,
   CardDescription,
@@ -5,9 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {CalendarDays} from 'lucide-react';
 import {Switch} from '@/components/ui/switch';
-import OptionDropdown from '@/components/common/OptionDropdown';
+import {CalendarDays} from 'lucide-react';
 
 const CouponCard = ({title, description, validFrom, expiredDate}) => {
   return (
@@ -17,7 +17,9 @@ const CouponCard = ({title, description, validFrom, expiredDate}) => {
           <p className="line-clamp-1">{title}</p>
           <OptionDropdown />
         </CardTitle>
-        <CardDescription className="line-clamp-2">{description}</CardDescription>
+        <CardDescription className="line-clamp-2">
+          {description}
+        </CardDescription>
       </CardHeader>
       <CardFooter className="my-3 justify-between">
         <div className="flex flex-col gap-3">

@@ -4,9 +4,11 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import {ChevronDown, MoreHorizontal} from 'lucide-react';
+import {useLocation} from 'react-router';
 
-import AddAdminDialog from '@/components/dialog/AddAdminDialog';
-import ConfirmDeleteAdminDialog from '@/components/dialog/ConfirmDeleteAdminDialog';
+import AddAppointmentDialog from '@/components/dialog/AddAppointmentDialog';
+import AddCustomerDialog from '@/components/dialog/AddCustomerDialog';
+import ConfirmDeleteCustomerDialog from '@/components/dialog/ConfirmDeleteCustomerDialog';
 import {Button} from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -32,20 +34,30 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {useGetAllAdminsQuery} from '@/services/user';
+import {useGetAllCustomersQuery} from '@/services/customer';
 import moment from 'moment-timezone';
 import {useMemo, useState} from 'react';
 
 export const columns = [
   {
-    accessorKey: 'name',
-    header: 'Name',
-    cell: ({row}) => <div>{row.getValue('name')}</div>,
+    accessorKey: 'firstName',
+    header: 'First name',
+    cell: ({row}) => <div>{row.getValue('firstName')}</div>,
   },
   {
-    accessorKey: 'email',
-    header: 'Email',
-    cell: ({row}) => row.getValue('email'),
+    accessorKey: 'lastName',
+    header: 'Last name',
+    cell: ({row}) => <div>{row.getValue('lastName')}</div>,
+  },
+  {
+    accessorKey: 'phoneNumber',
+    header: 'Phone number',
+    cell: ({row}) => row.getValue('phoneNumber'),
+  },
+  {
+    accessorKey: 'birthDate',
+    header: 'Birth date',
+    cell: ({row}) => moment(row.getValue('birthDate')).format('MM-DD-YYYY'),
   },
   {
     accessorKey: 'createdAt',
@@ -57,7 +69,7 @@ export const columns = [
     id: 'actions',
     enableHiding: false,
     cell: ({row}) => {
-      const admin = row.original;
+      const customer = row.original;
 
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [open, setOpen] = useState(false);
@@ -72,9 +84,9 @@ export const columns = [
           </PopoverTrigger>
           <PopoverContent className="w-fit">
             <div className="flex flex-col gap-2">
-              <AddAdminDialog isEdit data={admin} />
-              <ConfirmDeleteAdminDialog
-                id={admin._id}
+              <AddCustomerDialog isEdit data={customer} />
+              <ConfirmDeleteCustomerDialog
+                id={customer._id}
                 onSuccess={() => setOpen(false)}
               />
             </div>
@@ -85,7 +97,14 @@ export const columns = [
   },
 ];
 
-const SettingsPage = () => {
+const AppointmentPage = () => {
+  const location = useLocation();
+
+  const state = location.state;
+
+  const customerPhoneNumber = state?.customerPhoneNumber;
+  const action = state?.action ?? 'none';
+
   const [{pageIndex, pageSize}, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -99,13 +118,16 @@ const SettingsPage = () => {
     [pageIndex, pageSize],
   );
 
-  const adminQuery = useGetAllAdminsQuery({
+  const customerQuery = useGetAllCustomersQuery({
     page: pageIndex + 1,
     limit: pageSize,
   });
-  const admins = useMemo(() => adminQuery.data?.data ?? [], [adminQuery.data]);
+  const customers = useMemo(
+    () => customerQuery.data?.data?.items ?? [],
+    [customerQuery.data],
+  );
 
-  const _pagination = adminQuery?.data?.data?.pagination;
+  const _pagination = customerQuery?.data?.data?.pagination;
   const totalPages = _pagination?.totalPages ?? 1;
 
   const [columnVisibility, setColumnVisibility] = useState({
@@ -113,7 +135,7 @@ const SettingsPage = () => {
   });
 
   const table = useReactTable({
-    data: admins,
+    data: customers,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -128,7 +150,7 @@ const SettingsPage = () => {
 
   return (
     <div className="w-full">
-      <h3 className="text-2xl font-semibold">Settings</h3>
+      <h3 className="text-2xl font-semibold">Appointment</h3>
 
       <div className="flex items-center gap-4 py-4">
         <Input
@@ -162,12 +184,15 @@ const SettingsPage = () => {
               })}
           </DropdownMenuContent>
         </DropdownMenu>
-        <AddAdminDialog />
+        <AddAppointmentDialog
+          defaultOpen={action === 'new' && !!customerPhoneNumber}
+          phoneNumber={customerPhoneNumber}
+        />
       </div>
       <div className="grid grid-cols-1 rounded-md border">
         <Table
           className="relative w-full overflow-auto"
-          isLoading={adminQuery.isFetching}>
+          isLoading={customerQuery.isFetching}>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
@@ -207,7 +232,7 @@ const SettingsPage = () => {
                 <TableCell
                   colSpan={columns.length}
                   className="h-24 text-center">
-                  {adminQuery.isFetching ? 'Loading...' : 'No results.'}
+                  {customerQuery.isFetching ? 'Loading...' : 'No results.'}
                 </TableCell>
               </TableRow>
             )}
@@ -274,4 +299,4 @@ const SettingsPage = () => {
   );
 };
 
-export default SettingsPage;
+export default AppointmentPage;

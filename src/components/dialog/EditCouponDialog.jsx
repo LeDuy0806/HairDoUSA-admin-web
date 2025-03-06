@@ -32,9 +32,11 @@ const EditCouponDialog = () => {
     .object({
       couponName: z.string().nonempty('Please enter coupon name'),
       discount: z.string().nonempty('Please enter discount amount'),
-      usageLimit: z.string({
-        required_error: 'Please enter usage limit',
-      }).nonempty('Please enter usage limit'),
+      usageLimit: z
+        .string({
+          required_error: 'Please enter usage limit',
+        })
+        .nonempty('Please enter usage limit'),
       description: z.string().max(100, {
         message: 'Description must be less than 100 characters',
       }),

@@ -1,8 +1,8 @@
-import Routers from './routers';
 import moment from 'moment-timezone';
+import Routers from './routers';
 
 function App() {
-  moment.tz.setDefault('America/Los_Angeles');  
+  moment.tz.setDefault('America/Los_Angeles');
 
   return <Routers />;
 }
