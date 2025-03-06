@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {CalendarDays} from 'lucide-react';
+import {Switch} from '@/components/ui/switch';
 import OptionDropdown from '@/components/common/OptionDropdown';
 
 const CouponCard = ({title, description, validFrom, expiredDate}) => {
@@ -13,20 +14,23 @@ const CouponCard = ({title, description, validFrom, expiredDate}) => {
     <Card className="w-full pt-3">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          {title}
+          <p className="line-clamp-1">{title}</p>
           <OptionDropdown />
         </CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription className="line-clamp-2">{description}</CardDescription>
       </CardHeader>
-      <CardFooter className="my-3 flex flex-col items-start gap-3">
-        <div className="flex gap-2">
-          <CalendarDays className="text-muted-foreground h-4 w-4" />
-          <p className="text-muted-foreground text-sm">From: {validFrom}</p>
+      <CardFooter className="my-3 justify-between">
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-2">
+            <CalendarDays className="text-muted-foreground h-4 w-4" />
+            <p className="text-muted-foreground text-sm">From: {validFrom}</p>
+          </div>
+          <div className="flex gap-2">
+            <CalendarDays className="text-muted-foreground h-4 w-4" />
+            <p className="text-muted-foreground text-sm">To: {expiredDate}</p>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <CalendarDays className="text-muted-foreground h-4 w-4" />
-          <p className="text-muted-foreground text-sm">To: {expiredDate}</p>
-        </div>
+        <Switch className="cursor-pointer self-end" />
       </CardFooter>
     </Card>
   );

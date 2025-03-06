@@ -4,13 +4,11 @@ import FormDiscountField from '@/components/coupon/FormDiscountField';
 import {Button} from '@/components/ui/button';
 import {Checkbox} from '@/components/ui/checkbox';
 import {
-  Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {Form, FormControl, FormField, FormItem} from '@/components/ui/form';
 import {Separator} from '@/components/ui/separator';
@@ -28,13 +26,15 @@ const COUPON_DISCOUNT_TYPE = {
 
 const EditCouponDialog = () => {
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
   const [discountType, setDiscountType] = useState(COUPON_DISCOUNT_TYPE.FIXED);
 
   const formSchema = z
     .object({
       couponName: z.string().nonempty('Please enter coupon name'),
       discount: z.string().nonempty('Please enter discount amount'),
+      usageLimit: z.string({
+        required_error: 'Please enter usage limit',
+      }).nonempty('Please enter usage limit'),
       description: z.string().max(100, {
         message: 'Description must be less than 100 characters',
       }),
@@ -115,18 +115,11 @@ const EditCouponDialog = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       console.log('New coupon added:', values);
       form.reset();
-      setOpen(false);
+      // setOpen(false);
     } catch (err) {
       console.error('Error adding new coupon:', err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleOpenChanged = open => {
-    setOpen(open);
-    if (!open) {
-      form.reset();
     }
   };
 
@@ -163,6 +156,13 @@ const EditCouponDialog = () => {
             placeholder="Enter discount amount"
             value={discountType}
             onValueChange={setDiscountType}
+          />
+          <FormNormalField
+            form={form}
+            name="usageLimit"
+            label="Usage Limit"
+            placeholder="Enter coupon usage limit"
+            type="number"
           />
           <FormNormalField
             form={form}
@@ -217,29 +217,6 @@ const EditCouponDialog = () => {
               return validFrom && date < moment(validFrom);
             }}
           />
-          <FormField
-            control={form.control}
-            name="isPermanent"
-            render={({field}) => (
-              <FormItem>
-                <FormControl>
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                    <p className="text-sm font-medium">
-                      Make this coupon permanent
-                    </p>
-                  </div>
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <p className="text-muted-foreground text-sm font-normal">
-            If the coupon is not permanent, it will be automatically deleted
-            after the Expired Date
-          </p>
           <Separator className="my-3" />
           <DialogFooter className="justify-end">
             <Button type="submit" isLoading={loading}>

@@ -1,3 +1,4 @@
+import EditCouponDialog from '@/components/dialog/EditCouponDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,8 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {Dialog, DialogTrigger} from '@radix-ui/react-dialog';
-import {Edit, Edit3, EllipsisVertical, Trash2} from 'lucide-react';
-import EditCouponDialog from '@/components/dialog/EditCouponDialog';
+import {Edit3, EllipsisVertical, Trash2} from 'lucide-react';
 
 const OptionDropdown = () => {
   return (

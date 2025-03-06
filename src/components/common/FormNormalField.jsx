@@ -9,7 +9,7 @@ import {Input} from '@/components/ui/input';
 import {cn} from '@/lib/utils';
 
 
-const FormNormalField = ({form, name, label, placeholder, disabled}) => {
+const FormNormalField = ({form, name, label, placeholder, disabled, ...props}) => {
   return (
     <FormField
       control={form.control}
@@ -22,11 +22,13 @@ const FormNormalField = ({form, name, label, placeholder, disabled}) => {
               <div className="relative">
                 <Input
                   {...field}
+                  {...props}
                   disabled={disabled}
                   placeholder={placeholder}
                   className={cn(
                     form.formState.errors[name] &&
                       'border-destructive focus-visible:ring-destructive',
+                    '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
                   )}
                 />
               </div>

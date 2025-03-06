@@ -35,6 +35,9 @@ const AddCouponDialog = () => {
     .object({
       couponName: z.string().nonempty('Please enter coupon name'),
       discount: z.string().nonempty('Please enter discount amount'),
+      usageLimit: z.string({
+        required_error: 'Please enter usage limit',
+      }).nonempty('Please enter usage limit'),
       description: z.string().max(100, {
         message: 'Description must be less than 100 characters',
       }),
@@ -170,6 +173,13 @@ const AddCouponDialog = () => {
             />
             <FormNormalField
               form={form}
+              name="usageLimit"
+              label="Usage Limit"
+              placeholder="Enter coupon usage limit"
+              type="number"
+            />
+            <FormNormalField
+              form={form}
               name="description"
               label="Description"
               placeholder="Enter description"
@@ -221,29 +231,6 @@ const AddCouponDialog = () => {
                 return validFrom && date < moment(validFrom);
               }}
             />
-            <FormField
-              control={form.control}
-              name="isPermanent"
-              render={({field}) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <p className="text-sm font-medium">
-                        Make this coupon permanent
-                      </p>
-                    </div>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <p className="text-muted-foreground text-sm font-normal">
-              If the coupon is not permanent, it will be automatically deleted
-              after the Expired Date
-            </p>
             <Separator className="my-3" />
             <DialogFooter className="justify-end gap-2">
               <Button type="submit" isLoading={loading}>
