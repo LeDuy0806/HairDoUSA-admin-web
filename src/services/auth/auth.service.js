@@ -5,4 +5,6 @@ export const authService = {
   verifyLoginOtp: async data =>
     await instance.post('/auth/verify-login-otp', data),
   getMe: async () => await instance.get('/auth/me'),
+  changePassword: async data =>
+    await instance.post('/auth/change-password', data),
 };

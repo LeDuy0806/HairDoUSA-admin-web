@@ -17,17 +17,21 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
+import {useChangePasswordMutation} from '@/services/auth';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {Eye, EyeOff} from 'lucide-react';
+import {DialogDescription} from '@radix-ui/react-dialog';
+import {AlertCircle, Eye, EyeOff} from 'lucide-react';
 import {useState} from 'react';
 import {useForm} from 'react-hook-form';
+import {toast} from 'sonner';
 import {z} from 'zod';
+import {Alert, AlertDescription, AlertTitle} from '../ui/alert';
 
 const PASSWORD_MIN_LENGTH = 6;
 
 const formSchema = z
   .object({
-    currentPassword: z.string().nonempty('Please enter your current password'),
+    oldPassword: z.string().nonempty('Please enter your current password'),
     newPassword: z.string().min(PASSWORD_MIN_LENGTH, {
       message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters`,
     }),
@@ -87,30 +91,38 @@ const GeneralPasswordField = ({form, name, label, placeholder}) => {
 };
 
 const PassChangeDialog = () => {
-  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [commonError, setCommonError] = useState(null);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      currentPassword: '',
+      oldPassword: '',
       newPassword: '',
       confirmPassword: '',
     },
   });
 
+  const changePasswordMutation = useChangePasswordMutation();
+  const loading = changePasswordMutation.isPending;
+
   const onSubmit = async values => {
-    setLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Password changed:', values);
-      form.reset();
-      setOpen(false);
-    } catch (err) {
-      console.error('Error changing password:', err);
-    } finally {
-      setLoading(false);
-    }
+    changePasswordMutation.mutate(values, {
+      onSuccess: res => {
+        if (res.success) {
+          toast.success(res.message);
+          form.reset();
+          setOpen(false);
+        } else {
+          setCommonError(res.message);
+        }
+      },
+      onError: err => {
+        setCommonError(
+          err?.response?.data?.message || 'Unexpected error, please try again',
+        );
+      },
+    });
   };
 
   const handleOpenChanged = open => {
@@ -139,7 +151,7 @@ const PassChangeDialog = () => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <GeneralPasswordField
               form={form}
-              name="currentPassword"
+              name="oldPassword"
               label="Current Password"
               placeholder="Enter current password"
             />
@@ -155,6 +167,15 @@ const PassChangeDialog = () => {
               label="Confirm New Password"
               placeholder="Enter confirm new password"
             />
+            {commonError && (
+              <Alert
+                variant="destructive"
+                className="border-red-500 bg-red-50/50">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{commonError}</AlertDescription>
+              </Alert>
+            )}
             <DialogFooter className="gap-2">
               <Button
                 type="button"

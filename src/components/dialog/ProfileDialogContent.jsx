@@ -7,10 +7,13 @@ import {
 } from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
+import {useAuthContext} from '@/context/AuthContext';
 import {DialogDescription} from '@radix-ui/react-dialog';
 import PassChangeDialog from './PassChangeDialog';
 
 const ProfileDialogContent = ({onConfirmClick}) => {
+  const {user} = useAuthContext();
+
   return (
     <DialogContent className="sm:max-w-[425px]">
       <DialogHeader>
@@ -23,7 +26,7 @@ const ProfileDialogContent = ({onConfirmClick}) => {
           <Input
             id="name"
             readOnly
-            defaultValue="Hairdo USA Admin"
+            defaultValue={user?.name}
             className="bg-background col-span-3 cursor-default focus:ring-0"
           />
         </div>
@@ -32,14 +35,14 @@ const ProfileDialogContent = ({onConfirmClick}) => {
           <Input
             id="email"
             readOnly
-            defaultValue="hairdo1usa@hairdousa1.com"
+            defaultValue={user?.email}
             className="col-span-3"
           />
         </div>
       </div>
       <DialogFooter>
         <PassChangeDialog />
-        <Button onClick={onConfirmClick}>Confirm</Button>
+        <Button onClick={onConfirmClick}>Close</Button>
       </DialogFooter>
     </DialogContent>
   );
