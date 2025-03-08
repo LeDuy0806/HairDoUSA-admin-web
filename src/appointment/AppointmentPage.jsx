@@ -112,10 +112,10 @@ export const columns = [
           <SelectTrigger>
             <SelectValue placeholder="Change status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="capitalize">
             {Object.values(APPOINTMENT_STATUS).map(st => (
               <SelectItem key={st} value={st}>
-                {st}
+                {st.replace(/_/g, ' ')}
               </SelectItem>
             ))}
           </SelectContent>
