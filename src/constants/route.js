@@ -13,6 +13,7 @@ export const ROUTE = {
   },
   APPOINTMENT: {
     ROOT: '/appointment',
+    PAYMENT: id => '/appointment?appointmentId=' + id,
   },
   SETTINGS: {
     ROOT: '/settings',

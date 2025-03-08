@@ -1,129 +1,373 @@
-import FilterSelect from '@/components/common/FilterSelect';
-import CouponCard from '@/components/coupon/CouponCard';
-import AddCouponDialog from '@/components/dialog/AddCouponDialog';
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import {ChevronDown, MoreHorizontal} from 'lucide-react';
+
+import AddCouponDialog from '@/components/dialog/AddCouponDialog';
+import ConfirmDeleteCouponDialog from '@/components/dialog/ConfirmDeleteCouponDialog';
+import {Button} from '@/components/ui/button';
+import {Checkbox} from '@/components/ui/checkbox';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {Input} from '@/components/ui/input';
+import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {Separator} from '@/components/ui/separator';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import useDebounce from '@/hooks/use-debounce';
-import {isoStringToShortDate} from '@/utils/DateTimeConverter';
-import {ChevronDown} from 'lucide-react';
-import {useEffect, useState} from 'react';
+import {
+  useGetAllCouponsQuery,
+  useUpdateCouponMutation,
+} from '@/services/coupon';
+import moment from 'moment-timezone';
+import {useMemo, useState} from 'react';
+import {toast} from 'sonner';
 
-const filterOptions = [
-  {label: 'All', value: 'ALL'},
-  {label: 'Active', value: 'ACTIVE'},
-  {label: 'Last created', value: 'LAST_CREATED'},
-];
+export const columns = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+    cell: ({row}) => row.getValue('name'),
+  },
+  {
+    accessorKey: 'code',
+    header: 'Code',
+    cell: ({row}) => row.getValue('code'),
+  },
+  {
+    accessorKey: 'discountValue',
+    header: 'Discount',
+    cell: ({row}) => {
+      const discountType = row.original.discountType;
+      const discountValue = row.getValue('discountValue');
 
-const tempCoupons = [
-  {
-    id: 1,
-    title: 'Happy Birthday Coupon',
-    description:
-      'This coupon will be automatically sent to customers whose birthday in the month',
-    validFrom: '2025-03-03T13:54:00.000Z',
-    expiredDate: '2024-03-31T23:59:59.000Z',
+      return `${discountValue}${discountType === 'PERCENT' ? '%' : '$'}`;
+    },
   },
   {
-    id: 2,
-    title: 'New Member Coupon',
-    description: 'This coupon will be automatically sent to new customers',
-    validFrom: '2024-03-15T00:00:00.000Z',
-    expiredDate: '2024-04-15T23:59:59.000Z',
+    accessorKey: 'couponType',
+    header: 'Coupon type',
+    cell: ({row}) => row.getValue('couponType'),
   },
   {
-    id: 3,
-    title: 'Coupon ABCXYZ',
-    description: 'This coupon will automatically send to.....',
-    validFrom: '2024-03-10T00:00:00.000Z',
-    expiredDate: '2024-05-31T23:59:59.000Z',
+    accessorKey: 'validFrom',
+    header: 'Valid from',
+    cell: ({row}) => moment(row.getValue('validFrom')).format('MM-DD-YYYY'),
   },
   {
-    id: 4,
-    title: 'Loyalty Reward',
-    description: '30% off for members on their birthday month',
-    validFrom: '2024-01-01T00:00:00.000Z',
-    expiredDate: '2024-12-31T23:59:59.000Z',
+    accessorKey: 'validUntil',
+    header: 'Valid to',
+    cell: ({row}) => moment(row.getValue('validUntil')).format('MM-DD-YYYY'),
   },
   {
-    id: 5,
-    title: 'Spring Collection',
-    description: '15% off on all hair coloring services',
-    validFrom: '2024-04-01T00:00:00.000Z',
-    expiredDate: '2024-05-15T23:59:59.000Z',
+    accessorKey: 'usageLimit',
+    header: 'Usage limit',
+    cell: ({row}) => row.getValue('usageLimit'),
+  },
+  {
+    accessorKey: 'usedCount',
+    header: 'Used count',
+    cell: ({row}) => row.getValue('usedCount'),
+  },
+  {
+    accessorKey: 'isActive',
+    header: 'Active',
+    cell: ({row}) => {
+      const status = row.getValue('isActive');
+      const coupon = row.original;
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const updateCouponMutation = useUpdateCouponMutation(row.original._id);
+
+      const updateCouponStatus = st => {
+        updateCouponMutation.mutate(
+          {...coupon, isActive: st},
+          {
+            onSuccess: res => {
+              if (res.success) {
+                toast.success('Coupon status updated');
+              } else {
+                toast.error(res.message);
+              }
+            },
+            onError: err => {
+              toast.error(
+                err?.response?.data?.message || 'Something went wrong',
+              );
+            },
+          },
+        );
+      };
+
+      return <Checkbox checked={status} onCheckedChange={updateCouponStatus} />;
+    },
+  },
+  {
+    accessorKey: 'createdAt',
+    header: 'Created at',
+    cell: ({row}) =>
+      moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A'),
+  },
+  {
+    id: 'actions',
+    enableHiding: false,
+    cell: ({row}) => {
+      const coupon = row.original;
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [open, setOpen] = useState(false);
+
+      return (
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-fit">
+            <div className="flex flex-col gap-2">
+              <AddCouponDialog isEdit data={coupon} />
+              <ConfirmDeleteCouponDialog
+                id={coupon._id}
+                onSuccess={() => setOpen(false)}
+              />
+            </div>
+          </PopoverContent>
+        </Popover>
+      );
+    },
   },
 ];
 
 const CouponPage = () => {
-  const [searchValue, setSearchValue] = useState('');
-  const debounceSearchValue = useDebounce(searchValue);
+  const [{pageIndex, pageSize}, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-  useEffect(() => {
-    // console.log('Debounce search value: ', debounceSearchValue);
-  }, [debounceSearchValue]);
+  const [keyword, setKeyword] = useState('');
+  const debouncedKeyword = useDebounce(keyword);
 
-  const handleSearchChange = e => {
-    setSearchValue(e.target.value);
-  };
+  const pagination = useMemo(
+    () => ({
+      pageIndex,
+      pageSize,
+    }),
+    [pageIndex, pageSize],
+  );
+
+  const query = useMemo(() => {
+    const q = {
+      page: pageIndex + 1,
+      limit: pageSize,
+    };
+
+    if (debouncedKeyword) {
+      q.code = debouncedKeyword;
+    }
+
+    return q;
+  }, [pageIndex, pageSize, debouncedKeyword]);
+
+  const couponQuery = useGetAllCouponsQuery(query);
+  const coupons = useMemo(
+    () => couponQuery.data?.data?.items ?? [],
+    [couponQuery.data],
+  );
+
+  const _pagination = couponQuery?.data?.data?.pagination;
+  const totalPages = _pagination?.totalPages ?? 1;
+  const totalItems = _pagination?.totalItems;
+
+  const [columnVisibility, setColumnVisibility] = useState({
+    createdAt: false,
+    couponType: false,
+    usageLimit: false,
+  });
+
+  const table = useReactTable({
+    data: coupons,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    manualPagination: true,
+    pageCount: totalPages,
+    onPaginationChange: setPagination,
+    state: {
+      columnVisibility,
+      pagination,
+    },
+  });
 
   return (
-    <div className="h-full w-full">
-      <h3 className="text-2xl font-semibold">Coupon</h3>
+    <>
+      <div className="w-full">
+        <h3 className="text-2xl font-semibold">Coupon</h3>
 
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <Input
-          onChange={handleSearchChange}
-          className="flex-1"
-          placeholder="Search by name, category,..."
-        />
-        <FilterSelect
-          options={filterOptions}
-          onValueChange={value => console.log(value)}
-        />
-        <AddCouponDialog />
+        <div className="flex items-center gap-4 py-4">
+          <Input
+            placeholder="Search by code"
+            className="flex-1"
+            value={keyword}
+            onChange={e => setKeyword(e.target.value)}
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                Columns <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter(column => column.getCanHide())
+                .map(column => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={value =>
+                        column.toggleVisibility(!!value)
+                      }>
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <AddCouponDialog />
+        </div>
+        <div className="grid grid-cols-1 rounded-md border">
+          <Table
+            className="relative w-full overflow-auto"
+            isLoading={couponQuery.isFetching}>
+            <TableHeader>
+              {table.getHeaderGroups().map(headerGroup => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map(header => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map(row => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}>
+                    {row.getVisibleCells().map(cell => (
+                      <TableCell key={cell.id} className="min-w-max">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center">
+                    {couponQuery.isFetching ? 'Loading...' : 'No results.'}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex items-center justify-between space-x-2 py-4">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+            <p className="min-w-max">Page</p>
+            <Select
+              value={pageIndex}
+              onValueChange={v =>
+                setPagination(prev => ({...prev, pageIndex: v}))
+              }>
+              <SelectTrigger>
+                <SelectValue placeholder="Select page size" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({length: totalPages}, (_, i) => i).map(p => (
+                  <SelectItem key={p} value={p}>
+                    {p + 1}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="min-w-max">of {totalPages}</p>{' '}
+            <Separator orientation="vertical" className="!h-5 w-2" />
+            <p className="min-w-max">Page size</p>
+            <Select
+              value={pageSize}
+              onValueChange={v =>
+                setPagination(prev => ({...prev, pageSize: v}))
+              }>
+              <SelectTrigger>
+                <SelectValue placeholder="Select page size" />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 20, 50, 100].map(p => (
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Separator orientation="vertical" className="!h-5 w-2" />
+            <p className="min-w-max">Total: {totalItems ?? 0}</p>
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}>
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}>
+              Next
+            </Button>
+          </div>
+        </div>
       </div>
-      <Collapsible defaultOpen>
-        <CollapsibleTrigger className="my-5 [&[data-state=open]>div>svg]:-rotate-180">
-          <div className="flex cursor-pointer items-center">
-            <ChevronDown className="mr-2 size-6 transition-transform duration-200" />
-            <p className="text-lg font-semibold">Permanent Coupons</p>
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="grid grid-cols-3 gap-5">
-          {tempCoupons.map(coupon => (
-            <CouponCard
-              key={coupon.id}
-              title={coupon.title}
-              description={coupon.description}
-              validFrom={isoStringToShortDate(new Date().toISOString())}
-              expiredDate={isoStringToShortDate(coupon.expiredDate)}
-            />
-          ))}
-        </CollapsibleContent>
-      </Collapsible>
-      <Collapsible defaultOpen>
-        <CollapsibleTrigger className="my-5 [&[data-state=open]>div>svg]:-rotate-180">
-          <div className="flex cursor-pointer items-center">
-            <ChevronDown className="mr-2 size-6 transition-transform duration-200" />
-            <p className="text-lg font-semibold">Seasonal Coupons</p>
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="grid grid-cols-3 gap-5">
-          {tempCoupons.map(coupon => (
-            <CouponCard
-              key={coupon.id}
-              title={coupon.title}
-              description={coupon.description}
-              validFrom={isoStringToShortDate(new Date().toISOString())}
-              expiredDate={isoStringToShortDate(coupon.expiredDate)}
-            />
-          ))}
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
+    </>
   );
 };
 

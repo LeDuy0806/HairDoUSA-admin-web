@@ -3,10 +3,7 @@ import instance from '../instance';
 export const customerService = {
   getAll: async query =>
     await instance.get('/customer/list', {
-      params: {
-        sort: '-createdAt',
-        ...query,
-      },
+      params: query,
     }),
   getDetail: async id => await instance.get(`/customer/${id}`),
   delete: async id => await instance.delete(`/customer/${id}`),

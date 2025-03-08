@@ -1,0 +1,15 @@
+export const COUPON_TYPE = {
+  PERCENTAGE: 'PERCENTAGE',
+  FIXED: 'FIXED',
+};
+
+export const PAYMENT_STATUS = {
+  PAID: 'PAID',
+  UNPAID: 'UNPAID',
+};
+
+export const APPOINTMENT_STATUS = {
+  WAITING: 'WAITING',
+  IN_SERVICE: 'IN_SERVICE',
+  COMPLETED: 'COMPLETED',
+};

@@ -1,6 +1,7 @@
 import {ROUTE} from '@/constants/route';
 import {useAuthContext} from '@/context/AuthContext';
 import {zodResolver} from '@hookform/resolvers/zod';
+import {Loader} from 'lucide-react';
 import {useEffect} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {Outlet} from 'react-router';
@@ -45,7 +46,11 @@ const AuthLayout = () => {
     }
   }, [isAuthenticated, isLoadingUser]);
 
-  return (
+  return isLoadingUser ? (
+    <div className="flex h-screen w-full items-center justify-center">
+      <Loader className="animate-spin" />
+    </div>
+  ) : (
     <div className="flex h-screen w-full">
       <div className="w-1/2">
         <img

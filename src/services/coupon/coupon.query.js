@@ -2,11 +2,11 @@ import {QUERY_KEY} from '@/constants/query-key';
 import {useQuery} from '@tanstack/react-query';
 import {couponService} from './coupon.service';
 
-export const useGetAllCouponsQuery = () => {
+export const useGetAllCouponsQuery = query => {
   return useQuery({
-    queryKey: [QUERY_KEY.COUPON.GET_ALL],
+    queryKey: [QUERY_KEY.COUPON.GET_ALL, query],
     queryFn: async () => {
-      const res = await couponService.getAll();
+      const res = await couponService.getAll(query);
       return res.data;
     },
   });

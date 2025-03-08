@@ -1,7 +1,10 @@
 import instance from '../instance';
 
 export const couponService = {
-  getAll: async () => await instance.get('/coupon/list'),
+  getAll: async query =>
+    await instance.get('/coupon/list', {
+      params: query,
+    }),
   getDetail: async id => await instance.get(`/coupon/${id}`),
   create: async data => await instance.post('/coupon', data),
   update: async (id, data) => await instance.put(`/coupon/${id}`, data),

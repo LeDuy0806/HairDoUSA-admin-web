@@ -231,7 +231,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
                 {isEdit ? 'Save' : 'Confirm'}
               </Button>
               <DialogClose asChild>
-                <Button type="button" variant="secondary" disabled={loading}>
+                <Button type="button" variant="ghost" disabled={loading}>
                   Close
                 </Button>
               </DialogClose>

@@ -32,6 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import useDebounce from '@/hooks/use-debounce';
 import {useGetAllCustomersQuery} from '@/services/customer';
 import moment from 'moment-timezone';
 import {useMemo, useState} from 'react';
@@ -101,6 +102,10 @@ const CustomerPage = () => {
     pageSize: 10,
   });
 
+  const [keyword, setKeyword] = useState('');
+
+  const debouncedKeyword = useDebounce(keyword);
+
   const pagination = useMemo(
     () => ({
       pageIndex,
@@ -109,10 +114,22 @@ const CustomerPage = () => {
     [pageIndex, pageSize],
   );
 
-  const customerQuery = useGetAllCustomersQuery({
-    page: pageIndex + 1,
-    limit: pageSize,
-  });
+  const query = useMemo(() => {
+    const q = {
+      page: pageIndex + 1,
+      limit: pageSize,
+    };
+
+    if (debouncedKeyword) {
+      q.phoneNumber = debouncedKeyword;
+      q.lastName = debouncedKeyword;
+      q.firstName = debouncedKeyword;
+    }
+
+    return q;
+  }, [pageIndex, pageSize, debouncedKeyword]);
+
+  const customerQuery = useGetAllCustomersQuery(query);
   const customers = useMemo(
     () => customerQuery.data?.data?.items ?? [],
     [customerQuery.data],
@@ -120,6 +137,7 @@ const CustomerPage = () => {
 
   const _pagination = customerQuery?.data?.data?.pagination;
   const totalPages = _pagination?.totalPages ?? 1;
+  const totalItems = _pagination?.totalItems;
 
   const [columnVisibility, setColumnVisibility] = useState({
     createdAt: false,
@@ -145,11 +163,9 @@ const CustomerPage = () => {
 
       <div className="flex items-center gap-4 py-4">
         <Input
-          placeholder="Filter phone number..."
-          value={table.getColumn('phoneNumber')?.getFilterValue() ?? ''}
-          onChange={event =>
-            table.getColumn('phoneNumber')?.setFilterValue(event.target.value)
-          }
+          placeholder="Search by phone number, name..."
+          value={keyword}
+          onChange={e => setKeyword(e.target.value)}
           className="flex-1"
         />
         <DropdownMenu>
@@ -265,6 +281,8 @@ const CustomerPage = () => {
               ))}
             </SelectContent>
           </Select>
+          <Separator orientation="vertical" className="!h-5 w-2" />
+          <p className="min-w-max">Total: {totalItems ?? 0}</p>
         </div>
         <div className="space-x-2">
           <Button

@@ -32,6 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import useDebounce from '@/hooks/use-debounce';
 import {useGetAllAdminsQuery} from '@/services/user';
 import moment from 'moment-timezone';
 import {useMemo, useState} from 'react';
@@ -91,6 +92,10 @@ const SettingsPage = () => {
     pageSize: 10,
   });
 
+  const [keyword, setKeyword] = useState('');
+
+  const debouncedKeyword = useDebounce(keyword);
+
   const pagination = useMemo(
     () => ({
       pageIndex,
@@ -99,14 +104,28 @@ const SettingsPage = () => {
     [pageIndex, pageSize],
   );
 
-  const adminQuery = useGetAllAdminsQuery({
-    page: pageIndex + 1,
-    limit: pageSize,
-  });
-  const admins = useMemo(() => adminQuery.data?.data ?? [], [adminQuery.data]);
+  const query = useMemo(() => {
+    const q = {
+      page: pageIndex + 1,
+      limit: pageSize,
+    };
+
+    if (debouncedKeyword) {
+      q.email = debouncedKeyword;
+    }
+
+    return q;
+  }, [pageIndex, pageSize, debouncedKeyword]);
+
+  const adminQuery = useGetAllAdminsQuery(query);
+  const admins = useMemo(
+    () => adminQuery.data?.data?.items ?? [],
+    [adminQuery.data],
+  );
 
   const _pagination = adminQuery?.data?.data?.pagination;
   const totalPages = _pagination?.totalPages ?? 1;
+  const totalItems = _pagination?.totalItems;
 
   const [columnVisibility, setColumnVisibility] = useState({
     createdAt: false,
@@ -133,10 +152,8 @@ const SettingsPage = () => {
       <div className="flex items-center gap-4 py-4">
         <Input
           placeholder="Filter phone number..."
-          value={table.getColumn('phoneNumber')?.getFilterValue() ?? ''}
-          onChange={event =>
-            table.getColumn('phoneNumber')?.setFilterValue(event.target.value)
-          }
+          value={keyword}
+          onChange={e => setKeyword(e.target.value)}
           className="flex-1"
         />
         <DropdownMenu>
@@ -252,6 +269,8 @@ const SettingsPage = () => {
               ))}
             </SelectContent>
           </Select>
+          <Separator orientation="vertical" className="!h-5 w-2" />
+          <p className="min-w-max">Total: {totalItems ?? 0}</p>
         </div>
         <div className="space-x-2">
           <Button

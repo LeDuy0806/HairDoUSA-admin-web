@@ -2,11 +2,11 @@ import {QUERY_KEY} from '@/constants/query-key';
 import {useQuery} from '@tanstack/react-query';
 import {userService} from './user.service';
 
-export const useGetAllAdminsQuery = () => {
+export const useGetAllAdminsQuery = query => {
   return useQuery({
-    queryKey: [QUERY_KEY.ADMIN.GET_ALL],
+    queryKey: [QUERY_KEY.ADMIN.GET_ALL, query],
     queryFn: async () => {
-      const res = await userService.getAllAdmins();
+      const res = await userService.getAllAdmins(query);
       return res.data;
     },
   });

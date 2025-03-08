@@ -14,7 +14,7 @@ import {useState} from 'react';
 
 const AppHeaderBar = () => {
   const [open, setOpen] = useState(false);
-  const {logout} = useAuthContext();
+  const {logout, user} = useAuthContext();
 
   const handleDialogConfirmClick = () => {
     setOpen(false);
@@ -26,7 +26,9 @@ const AppHeaderBar = () => {
 
   return (
     <div className="flex justify-end p-10">
-      <h1 className="mr-5 text-2xl font-semibold">Good morning, SuperAdmin!</h1>
+      <h1 className="mr-5 text-2xl font-semibold">
+        Good morning, {user?.name}!
+      </h1>
       <Dialog open={open} onOpenChange={handleOpenChanged}>
         <DropdownMenu>
           <DropdownMenuTrigger>

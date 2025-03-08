@@ -13,6 +13,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -36,11 +37,17 @@ const formSchema = z
     password: z
       .string()
       .nonempty('Please enter password')
-      .min(6, 'Password must be at least 6 characters'),
+      .min(6, 'Password must be at least 6 characters')
+      .optional()
+      .nullable()
+      .or(z.literal('')),
     confirmPassword: z
       .string()
       .nonempty('Please enter confirm password')
-      .min(6, 'Password must be at least 6 characters'),
+      .min(6, 'Password must be at least 6 characters')
+      .optional()
+      .nullable()
+      .or(z.literal('')),
   })
   .refine(data => data.password === data.confirmPassword, {
     message: 'Password and confirm password must be the same',
@@ -59,8 +66,6 @@ const AddAdminDialog = ({isEdit, data}) => {
       confirmPassword: '',
     },
   });
-
-  console.log(form.formState.errors);
 
   useEffect(() => {
     if (data) {
@@ -82,33 +87,25 @@ const AddAdminDialog = ({isEdit, data}) => {
 
   const loading =
     createAdminMutation.isPending || updateAdminMutation.isPending;
-
+  console.log(isEdit);
   const onSubmit = async values => {
     const handler = isEdit ? updateAdminMutation : createAdminMutation;
 
-    handler.mutate(
-      {
-        ...values,
-        role: 'admin',
+    handler.mutate(values, {
+      onSuccess: res => {
+        if (res.success) {
+          form.reset();
+          setOpen(false);
+          toast.success(res.message);
+        } else {
+          setCommonError(res.message);
+        }
       },
-      {
-        onSuccess: res => {
-          if (res.success) {
-            form.reset();
-            setOpen(false);
-            toast.success(res.message);
-          } else {
-            setCommonError(res.message);
-          }
-        },
-        onError: err => {
-          console.error('Error adding new admin:', err);
-          setCommonError(
-            err?.response?.data?.message || 'Something went wrong',
-          );
-        },
+      onError: err => {
+        console.error('Error adding new admin:', err);
+        setCommonError(err?.response?.data?.message || 'Something went wrong');
       },
-    );
+    });
   };
 
   const handleOpenChanged = open => {
@@ -168,6 +165,9 @@ const AddAdminDialog = ({isEdit, data}) => {
                   </div>
                   <div className="grid grid-cols-5 items-center gap-4">
                     <div className="col-span-2" />
+                    <FormDescription className="col-span-3 text-xs">
+                      Default password is 123456
+                    </FormDescription>
                     <FormMessage className="col-span-3" />
                   </div>
                 </FormItem>
@@ -215,7 +215,7 @@ const AddAdminDialog = ({isEdit, data}) => {
                 {isEdit ? 'Save' : 'Confirm'}
               </Button>
               <DialogClose asChild>
-                <Button type="button" variant="secondary" disabled={loading}>
+                <Button type="button" variant="ghost" disabled={loading}>
                   Close
                 </Button>
               </DialogClose>
