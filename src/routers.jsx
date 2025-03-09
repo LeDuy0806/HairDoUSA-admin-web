@@ -6,7 +6,7 @@ import MainLayout from './layout/MainLayout';
 import LoginPage from './pages/auth/LoginPage';
 import TwoFactorAuthPage from './pages/auth/TwoFactorAuthPage';
 
-import AppointmentPage from './appointment/AppointmentPage';
+import AppointmentPage from './pages/appointment/AppointmentPage';
 import CouponPage from './pages/coupon/CouponPage';
 import CustomerDetailPage from './pages/customer/CustomerDetailPage';
 import CustomerPage from './pages/customer/CustomerPage';
