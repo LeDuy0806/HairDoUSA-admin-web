@@ -77,6 +77,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
       form.reset({
         phoneNumber,
       });
+      setSelectedCustomer(phoneNumber);
     }
   }, [phoneNumber]);
 

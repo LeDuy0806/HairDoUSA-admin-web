@@ -185,8 +185,10 @@ const AppointmentPage = () => {
 
   const state = location.state;
 
-  const appointmentPhoneNumber = state?.appointmentPhoneNumber;
+  const appointmentPhoneNumber = state?.customerPhoneNumber;
   const action = state?.action ?? 'none';
+
+  console.log({state});
 
   const [{pageIndex, pageSize}, setPagination] = useState({
     pageIndex: 0,
