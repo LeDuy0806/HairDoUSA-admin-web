@@ -202,7 +202,7 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {!coupon && (
+              {!coupon && !isPaid && (
                 <FormField
                   control={form.control}
                   name="couponCode"
