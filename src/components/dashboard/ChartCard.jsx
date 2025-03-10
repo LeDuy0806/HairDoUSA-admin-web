@@ -24,7 +24,7 @@ const ChartCard = ({
 
   const barColor =
     currentTimeSpanAmount >= lastTimeSpanAmount
-      ? 'var(--chart-profit'
+      ? 'var(--chart-profit)'
       : 'var(--chart-loss)';
 
   return (

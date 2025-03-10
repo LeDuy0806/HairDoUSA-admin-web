@@ -31,10 +31,14 @@ import {z} from 'zod';
 import {Alert, AlertDescription, AlertTitle} from '../ui/alert';
 import {Input} from '../ui/input';
 import {Popover, PopoverContent, PopoverTrigger} from '../ui/popover';
+import {ScrollArea} from '../ui/scroll-area';
 
 const formSchema = z.object({
-  phoneNumber: z.string().nonempty('Please enter phone number'),
-  subtotal: z.coerce.number().nonnegative('Please enter a valid number'),
+  phoneNumber: z.string().nonempty('Please select a customer'),
+  subtotal: z.coerce.number({
+    required_error: 'Please enter subtotal',
+    invalid_type_error: 'Please enter subtotal',
+  }).nonnegative('Please enter a valid number'),
 });
 
 const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
@@ -44,10 +48,10 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const debouncedValue = useDebounce(value, 500);
 
-  const creatAppointmentMutation = useCreateAppointmentMutation();
+  const createAppointmentMutation = useCreateAppointmentMutation();
   const getAllCustomersQuery = useGetAllCustomersQuery({
     phoneNumber: debouncedValue?.replace('+', ''),
-    select: 'lastName,phoneNumber',
+    select: 'firstName,lastName,phoneNumber',
   });
 
   const navigate = useNavigate();
@@ -89,7 +93,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
 
   const [commonError, setCommonError] = useState(null);
 
-  const loading = creatAppointmentMutation.isPending;
+  const loading = createAppointmentMutation.isPending;
 
   const foundCustomers = useMemo(
     () => getAllCustomersQuery.data?.data?.items ?? [],
@@ -110,7 +114,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
       }
     }
 
-    creatAppointmentMutation.mutate(values, {
+    createAppointmentMutation.mutate(values, {
       onSuccess: res => {
         if (res.success) {
           toast.success('Appointment created successfully');
@@ -156,21 +160,22 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="phoneNumber"
               render={() => (
                 <FormItem className="gap-1">
                   <div className="grid grid-cols-5 items-center gap-4">
-                    <FormLabel className="col-span-2">Customer</FormLabel>
-                    <Popover className="col-span-3">
+                    <FormLabel className="col-span-1.5">Customer</FormLabel>
+                    <Popover modal className="col-span-4">
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="col-span-3 w-full justify-start">
+                          className="col-span-4 w-full justify-start">
                           {selectedCustomer
-                            ? `${selectedCustomerIns?.lastName} - ${selectedCustomer}`
+                            ? // ? `${selectedCustomerIns?.lastName} - ${selectedCustomer}`
+                              `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName} (${selectedCustomer})`
                             : 'Select Customer'}
                         </Button>
                       </PopoverTrigger>
@@ -179,7 +184,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                           value={value}
                           onChange={e => setValue(e.target.value)}
                         />
-                        <div className="flex max-h-60 flex-col items-center gap-1 overflow-auto">
+                        <ScrollArea className="flex max-h-60 flex-col items-center gap-1">
                           {getAllCustomersQuery.isFetching && (
                             <Loader className="size-4 animate-spin" />
                           )}
@@ -193,7 +198,9 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                                   setSelectedCustomer(customer.phoneNumber);
                                 }}>
                                 <p className="line-clamp-1">
-                                  {customer.lastName} - {customer.phoneNumber}
+                                  {/* {customer.lastName} - {customer.phoneNumber} */}
+                                  {customer.firstName} {customer.lastName} (
+                                  {customer.phoneNumber})
                                 </p>
                               </Button>
                             ))
@@ -202,13 +209,13 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                               No customers found
                             </span>
                           )}
-                        </div>
+                        </ScrollArea>
                       </PopoverContent>
                     </Popover>
                   </div>
                   <div className="grid grid-cols-5 items-center gap-4">
-                    <div className="col-span-2" />
-                    <FormMessage className="col-span-3" />
+                    <div className="col-span-1" />
+                    <FormMessage className="col-span-4" />
                   </div>
                 </FormItem>
               )}
@@ -220,18 +227,18 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
               render={({field}) => (
                 <FormItem className="gap-1">
                   <div className="grid grid-cols-5 items-center gap-4">
-                    <FormLabel className="col-span-2">Subtotal</FormLabel>
+                    <FormLabel className="col-span-1">Subtotal</FormLabel>
                     <Input
                       {...field}
-                      className="col-span-3"
+                      className="col-span-4"
                       placeholder="Enter subtotal"
                       type="number"
                       min="0"
                     />
                   </div>
                   <div className="grid grid-cols-5 items-center gap-4">
-                    <div className="col-span-2" />
-                    <FormMessage className="col-span-3" />
+                    <div className="col-span-1" />
+                    <FormMessage className="col-span-4" />
                   </div>
                 </FormItem>
               )}
@@ -247,7 +254,15 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
               </Alert>
             )}
 
-            <DialogFooter className="justify-end gap-2">
+            <DialogFooter className="mt-8 justify-end">
+              <DialogClose asChild>
+                <Button type="button" variant="ghost" disabled={loading}>
+                  Close
+                </Button>
+              </DialogClose>
+              <Button type="submit" disabled={loading} variant="secondary">
+                Confirm
+              </Button>
               <Button
                 type="button"
                 disabled={loading}
@@ -255,14 +270,6 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                 onClick={() => onConfirm(form.watch(), true)}>
                 Confirm and process payment
               </Button>
-              <Button type="submit" disabled={loading} variant="secondary">
-                Confirm
-              </Button>
-              <DialogClose asChild>
-                <Button type="button" variant="ghost" disabled={loading}>
-                  Close
-                </Button>
-              </DialogClose>
             </DialogFooter>
           </form>
         </Form>

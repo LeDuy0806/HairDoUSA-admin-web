@@ -1,4 +1,4 @@
-import OptionDropdown from '@/components/common/OptionDropdown';
+import OptionDropdown from '@/components/coupon/OptionDropdown';
 import {
   Card,
   CardDescription,

@@ -33,7 +33,7 @@ import InputPassword from '../ui/input-password';
 const formSchema = z
   .object({
     name: z.string().nonempty('Please enter first name'),
-    email: z.string().nonempty('Please enter phone number'),
+    email: z.string().nonempty('Please enter email address').email('Invalid email address'),
     password: z
       .string()
       .nonempty('Please enter password')
@@ -87,8 +87,8 @@ const AddAdminDialog = ({isEdit, data}) => {
 
   const loading =
     createAdminMutation.isPending || updateAdminMutation.isPending;
-  console.log(isEdit);
-  const onSubmit = async values => {
+
+    const onSubmit = async values => {
     const handler = isEdit ? updateAdminMutation : createAdminMutation;
 
     handler.mutate(values, {
@@ -132,7 +132,7 @@ const AddAdminDialog = ({isEdit, data}) => {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormNormalField
               form={form}
               name="name"
@@ -163,11 +163,12 @@ const AddAdminDialog = ({isEdit, data}) => {
                       </div>
                     </FormControl>
                   </div>
-                  <div className="grid grid-cols-5 items-center gap-4">
+                  <div className="grid grid-cols-5 items-center gap-2">
                     <div className="col-span-2" />
                     <FormDescription className="col-span-3 text-xs">
                       Default password is 123456
                     </FormDescription>
+                    <div className="col-span-2" />
                     <FormMessage className="col-span-3" />
                   </div>
                 </FormItem>
@@ -210,15 +211,15 @@ const AddAdminDialog = ({isEdit, data}) => {
               </Alert>
             )}
 
-            <DialogFooter className="justify-end gap-2">
-              <Button type="submit" isLoading={loading} variant="default">
-                {isEdit ? 'Save' : 'Confirm'}
-              </Button>
+            <DialogFooter className="mt-8 justify-end">
               <DialogClose asChild>
                 <Button type="button" variant="ghost" disabled={loading}>
                   Close
                 </Button>
               </DialogClose>
+              <Button type="submit" isLoading={loading} variant="default">
+                {isEdit ? 'Save' : 'Confirm'}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

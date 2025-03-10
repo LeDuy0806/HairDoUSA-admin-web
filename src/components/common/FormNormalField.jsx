@@ -25,19 +25,17 @@ const FormNormalField = ({
           <div className="grid grid-cols-5 items-center gap-4">
             <FormLabel className="col-span-2">{label}</FormLabel>
             <FormControl className="col-span-3">
-              <div className="relative">
-                <Input
-                  {...field}
-                  {...props}
-                  disabled={disabled}
-                  placeholder={placeholder}
-                  className={cn(
-                    form.formState.errors[name] &&
-                      'border-destructive focus-visible:ring-destructive',
-                    '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-                  )}
-                />
-              </div>
+              <Input
+                {...field}
+                {...props}
+                disabled={disabled}
+                placeholder={placeholder}
+                className={cn(
+                  form.formState.errors[name] &&
+                    'border-destructive focus-visible:ring-destructive',
+                  '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                )}
+              />
             </FormControl>
           </div>
           <div className="grid grid-cols-5 items-center gap-4">

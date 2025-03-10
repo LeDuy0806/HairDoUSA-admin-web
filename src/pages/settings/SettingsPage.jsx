@@ -151,7 +151,7 @@ const SettingsPage = () => {
 
       <div className="flex items-center gap-4 py-4">
         <Input
-          placeholder="Filter phone number..."
+          placeholder="Search by email..."
           value={keyword}
           onChange={e => setKeyword(e.target.value)}
           className="flex-1"
@@ -173,7 +173,7 @@ const SettingsPage = () => {
                     className="capitalize"
                     checked={column.getIsVisible()}
                     onCheckedChange={value => column.toggleVisibility(!!value)}>
-                    {column.id}
+                    {column.columnDef.header}
                   </DropdownMenuCheckboxItem>
                 );
               })}
@@ -190,7 +190,7 @@ const SettingsPage = () => {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead className="text-center" key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -210,7 +210,7 @@ const SettingsPage = () => {
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}>
                   {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id} className="min-w-max">
+                    <TableCell key={cell.id} className="min-w-max text-center">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

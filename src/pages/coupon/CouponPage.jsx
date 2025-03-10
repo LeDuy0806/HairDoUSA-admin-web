@@ -8,7 +8,7 @@ import {ChevronDown, MoreHorizontal} from 'lucide-react';
 import AddCouponDialog from '@/components/dialog/AddCouponDialog';
 import ConfirmDeleteCouponDialog from '@/components/dialog/ConfirmDeleteCouponDialog';
 import {Button} from '@/components/ui/button';
-import {Checkbox} from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -45,8 +45,8 @@ import {toast} from 'sonner';
 export const columns = [
   {
     accessorKey: 'name',
-    header: 'Name',
-    cell: ({row}) => row.getValue('name'),
+    header: <div className="text-left pl-4">Name</div>,
+    cell: ({row}) => <div className="text-left pl-4">{row.getValue('name')}</div>,
   },
   {
     accessorKey: 'code',
@@ -60,7 +60,7 @@ export const columns = [
       const discountType = row.original.discountType;
       const discountValue = row.getValue('discountValue');
 
-      return `${discountValue}${discountType === 'PERCENT' ? '%' : '$'}`;
+      return `${discountValue} (${discountType === 'PERCENTAGE' ? '%' : '$'})`;
     },
   },
   {
@@ -118,7 +118,13 @@ export const columns = [
         );
       };
 
-      return <Checkbox checked={status} onCheckedChange={updateCouponStatus} />;
+      return (
+        <Switch
+          className="cursor-pointer"
+          checked={status}
+          onCheckedChange={updateCouponStatus}
+        />
+      );
     },
   },
   {
@@ -250,7 +256,7 @@ const CouponPage = () => {
                       onCheckedChange={value =>
                         column.toggleVisibility(!!value)
                       }>
-                      {column.id}
+                      {column.columnDef.header}
                     </DropdownMenuCheckboxItem>
                   );
                 })}
@@ -267,7 +273,7 @@ const CouponPage = () => {
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map(header => {
                     return (
-                      <TableHead key={header.id}>
+                      <TableHead className="text-center" key={header.id}>
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -287,7 +293,7 @@ const CouponPage = () => {
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map(cell => (
-                      <TableCell key={cell.id} className="min-w-max">
+                      <TableCell key={cell.id} className="min-w-max text-center">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),

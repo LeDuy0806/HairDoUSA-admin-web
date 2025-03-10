@@ -36,31 +36,41 @@ import useDebounce from '@/hooks/use-debounce';
 import {useGetAllCustomersQuery} from '@/services/customer';
 import moment from 'moment-timezone';
 import {useMemo, useState} from 'react';
+import { formatUSPhoneNumber } from '@/utils/PhoneNumberFormatter';
 
 export const columns = [
   {
     accessorKey: 'firstName',
-    header: 'First name',
-    cell: ({row}) => <div>{row.getValue('firstName')}</div>,
+    header: <div className="pl-4 text-left">First Name</div>,
+    cell: ({row}) => (
+      <div className="pl-4 text-left">{row.getValue('firstName')}</div>
+    ),
   },
   {
     accessorKey: 'lastName',
-    header: 'Last name',
-    cell: ({row}) => <div>{row.getValue('lastName')}</div>,
+    header: <div className="pl-4 text-left">Last Name</div>,
+    cell: ({row}) => (
+      <div className="pl-4 text-left">{row.getValue('lastName')}</div>
+    ),
   },
   {
     accessorKey: 'phoneNumber',
-    header: 'Phone number',
-    cell: ({row}) => row.getValue('phoneNumber'),
+    header: <div className="pl-4 text-left">Phone Number</div>,
+    cell: ({row}) => (
+      <div className="pl-4 text-left">
+        {formatUSPhoneNumber(row.getValue('phoneNumber'))}
+      </div>
+    ),
   },
   {
     accessorKey: 'birthDate',
-    header: 'Birth date',
+    header: 'Birth Date',
     cell: ({row}) => moment(row.getValue('birthDate')).format('MM-DD-YYYY'),
   },
   {
     accessorKey: 'createdAt',
     header: 'Created at',
+    // header: 'Created date',
     cell: ({row}) =>
       moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A'),
   },
@@ -122,8 +132,6 @@ const CustomerPage = () => {
 
     if (debouncedKeyword) {
       q.phoneNumber = debouncedKeyword;
-      q.lastName = debouncedKeyword;
-      q.firstName = debouncedKeyword;
     }
 
     return q;
@@ -163,7 +171,7 @@ const CustomerPage = () => {
 
       <div className="flex items-center gap-4 py-4">
         <Input
-          placeholder="Search by phone number, name..."
+          placeholder="Search by phone number..."
           value={keyword}
           onChange={e => setKeyword(e.target.value)}
           className="flex-1"
@@ -185,7 +193,7 @@ const CustomerPage = () => {
                     className="capitalize"
                     checked={column.getIsVisible()}
                     onCheckedChange={value => column.toggleVisibility(!!value)}>
-                    {column.id}
+                    {column.columnDef.header}
                   </DropdownMenuCheckboxItem>
                 );
               })}

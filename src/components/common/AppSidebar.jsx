@@ -11,12 +11,14 @@ import {sidebarData} from '@/constants/sidebar-data';
 import {ChevronLeft} from 'lucide-react';
 import {useCallback} from 'react';
 import {Link, useLocation} from 'react-router';
+import { useAuthContext } from '@/context/AuthContext';
 
 const AppSidebar = () => {
   const {toggleSidebar} = useSidebar();
 
   const location = useLocation();
   const {pathname} = location;
+  const {user} = useAuthContext();
 
   const isActive = useCallback(
     href => {
@@ -32,7 +34,11 @@ const AppSidebar = () => {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={toggleSidebar} size="lg" asChild>
+            <SidebarMenuButton
+              className="cursor-pointer"
+              onClick={toggleSidebar}
+              size="lg"
+              asChild>
               <a>
                 <img
                   src="/apple-icon.png"
@@ -53,19 +59,21 @@ const AppSidebar = () => {
       </SidebarHeader>
       <SidebarContent className="scrollbar-none">
         <SidebarMenu className="mx-2 my-4">
-          {sidebarData.map(item => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                isActive={isActive(item.url)}
-                className="py-5 group-data-[collapsible=icon]:my-1"
-                asChild>
-                <Link to={item.url}>
-                  <item.icon className="size-4" />
-                  <span className="text-sm">{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {sidebarData(user?.role === 'superadmin').map(item =>
+            item.isHidden ? null : (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  isActive={isActive(item.url)}
+                  className="gap-3 py-5 group-data-[collapsible=icon]:my-1"
+                  asChild>
+                  <Link to={item.url}>
+                    <item.icon className="size-5" />
+                    <span className="text-base">{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ),
+          )}
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>

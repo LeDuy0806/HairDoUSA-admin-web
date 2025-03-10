@@ -37,7 +37,8 @@ const formSchema = z.object({
     .string()
     .nonempty('Please enter a coupon code')
     .optional()
-    .nullable(),
+    .nullable()
+    .or(z.literal('')),
 });
 
 const ProcessAppointmentPaymentDialog = ({onClose}) => {
@@ -234,17 +235,16 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
               )}
 
               <div className="grid grid-cols-5 gap-4 text-sm">
-                <p className="col-span-5 text-right italic">Unit: $</p>
                 <p className="col-span-2">Subtotal</p>
                 <p className="col-span-3 text-right">
-                  {appointment?.subtotal ?? 0}
+                  ${appointment?.subtotal ?? 0}
                 </p>
 
                 {appointment?.coupon && (
                   <>
                     <p className="col-span-2">Discount</p>
                     <div className="col-span-3 inline-flex flex-col items-end gap-2">
-                      <p className="text-right">-{calculatedDiscount}</p>
+                      <p className="text-right">-${calculatedDiscount}</p>
                       <button
                         type="button"
                         disabled={removeCouponMutation.isPending}
@@ -264,7 +264,7 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
 
                 <p className="col-span-2">Total</p>
                 <p className="col-span-3 text-right">
-                  {appointment?.totalAmount ?? 0}
+                  ${appointment?.totalAmount ?? 0}
                 </p>
               </div>
 
@@ -293,7 +293,12 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
                 </Alert>
               )}
 
-              <DialogFooter>
+              <DialogFooter className="mt-8">
+                <DialogClose asChild>
+                  <Button variant={isPaid ? 'default' : 'ghost'} type="button">
+                    Close
+                  </Button>
+                </DialogClose>
                 {!isPaid && (
                   <Button
                     type="submit"
@@ -301,11 +306,6 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
                     Checkout
                   </Button>
                 )}
-                <DialogClose asChild>
-                  <Button variant={isPaid ? 'default' : 'ghost'} type="button">
-                    Close
-                  </Button>
-                </DialogClose>
               </DialogFooter>
             </form>
           </Form>

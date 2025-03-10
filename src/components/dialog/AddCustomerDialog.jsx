@@ -32,8 +32,10 @@ import {useForm} from 'react-hook-form';
 import {useNavigate} from 'react-router';
 import {toast} from 'sonner';
 import {z} from 'zod';
-import {Alert, AlertDescription, AlertTitle} from '../ui/alert';
-import {Input} from '../ui/input';
+import FormPhoneField from '@/components/coupon/FormPhoneField';
+import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
+import {Input} from '@/components/ui/input';
+import { formatUSPhoneNumber } from '@/utils/PhoneNumberFormatter';
 
 const formSchema = z.object({
   firstName: z.string().nonempty('Please enter first name'),
@@ -59,6 +61,9 @@ const AddCustomerDialog = ({isEdit, data}) => {
     if (data) {
       form.reset({
         ...data,
+        phoneNumber: data.phoneNumber.startsWith('+1')
+          ? formatUSPhoneNumber(data.phoneNumber)
+          : data.phoneNumber,
         birthDate: data.birthDate
           ? moment(data.birthDate).format('YYYY-MM-DD')
           : '2000-01-01',
@@ -82,8 +87,8 @@ const AddCustomerDialog = ({isEdit, data}) => {
   const loading =
     createCustomerMutation.isPending || updateCustomerMutation.isPending;
 
-  const onContinue = async (values, withNewAppoinment = true) => {
-    if (withNewAppoinment) {
+  const onContinue = async (values, withNewAppointment = true) => {
+    if (withNewAppointment) {
       const canContinue = await form.trigger();
       if (!canContinue) {
         return;
@@ -95,6 +100,9 @@ const AddCustomerDialog = ({isEdit, data}) => {
     handler.mutate(
       {
         ...values,
+        phoneNumber: values.phoneNumber.startsWith('+1')
+          ? values.phoneNumber.replace(/\s+/g, '')
+          : `+1${values.phoneNumber.replace(/\s+/g, '')}`,
         birthDate: values.birthDate ? moment(values.birthDate) : null,
       },
       {
@@ -103,7 +111,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
             form.reset();
             setOpen(false);
             toast.success(res.message);
-            if (withNewAppoinment) {
+            if (withNewAppointment) {
               navigate(ROUTE.APPOINTMENT.ROOT, {
                 state: {
                   customerPhoneNumber: res.data.phoneNumber,
@@ -151,18 +159,20 @@ const AddCustomerDialog = ({isEdit, data}) => {
           {isEdit ? 'Edit' : 'Add New Customer'}
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader className="mb-4">
+      <DialogContent className="gap-8">
+        <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit' : 'Add New'} Customer</DialogTitle>
-          {!isEdit && (
+          {!isEdit ? (
             <DialogDescription>
               Please add a new customer by these information. You cannot add if
               the customer information already exists in the system.
             </DialogDescription>
+          ) : (
+            <DialogDescription />
           )}
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormNormalField
               form={form}
               name="firstName"
@@ -177,11 +187,12 @@ const AddCustomerDialog = ({isEdit, data}) => {
               placeholder="Enter customer last name"
             />
 
-            <FormNormalField
+            <FormPhoneField
               form={form}
               name="phoneNumber"
               label="Phone number"
               placeholder="Enter phone number"
+              type="tel"
             />
 
             <FormField
@@ -189,12 +200,15 @@ const AddCustomerDialog = ({isEdit, data}) => {
               name="birthDate"
               render={({field}) => (
                 <FormItem className="gap-1">
-                  <div className="grid grid-cols-5 items-center gap-4">
+                  <div className="relative grid grid-cols-5 items-center gap-4">
                     <FormLabel className="col-span-2">Date of Birth</FormLabel>
                     <FormControl className="col-span-3">
-                      <div className="relative">
-                        <Input {...field} type="date" className="w-full" />
-                      </div>
+                      <Input
+                        {...field}
+                        type="date"
+                        // className="w-full [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:top-1/2 [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:-translate-y-1/2"
+                        className="w-full"
+                      />
                     </FormControl>
                   </div>
                   <div className="grid grid-cols-5 items-center gap-4">
@@ -215,26 +229,28 @@ const AddCustomerDialog = ({isEdit, data}) => {
               </Alert>
             )}
 
-            <DialogFooter className="justify-end gap-2">
-              {!isEdit && (
-                <Button
-                  type="button"
-                  onClick={() => onContinue(form.watch(), true)}
-                  disabled={loading}>
-                  Confirm with new appointment
-                </Button>
-              )}
-              <Button
-                type="submit"
-                disabled={loading}
-                variant={isEdit ? 'default' : 'secondary'}>
-                {isEdit ? 'Save' : 'Confirm'}
-              </Button>
-              <DialogClose asChild>
+            <DialogFooter className="mt-8">
+            <DialogClose asChild>
                 <Button type="button" variant="ghost" disabled={loading}>
                   Close
                 </Button>
               </DialogClose>
+              <div>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  variant={isEdit ? 'default' : 'secondary'}>
+                  {isEdit ? 'Save' : 'Confirm'}
+                </Button>
+                {!isEdit && (
+                  <Button
+                    type="button"
+                    onClick={() => onContinue(form.watch(), true)}
+                    disabled={loading}>
+                    Confirm with new appointment
+                  </Button>
+                )}
+              </div>
             </DialogFooter>
           </form>
         </Form>

@@ -1,12 +1,17 @@
-import {LayoutDashboard, Receipt, Settings2, Ticket, Users} from 'lucide-react';
+import {
+  ClipboardList,
+  LayoutDashboard,
+  Settings2,
+  Ticket,
+  Users,
+} from 'lucide-react';
 import {ROUTE} from './route';
 
-export const sidebarData = [
+export const sidebarData = (isSuperAdmin) => [
   {
     title: 'Dashboard',
     url: ROUTE.DASHBOARD,
     icon: LayoutDashboard,
-    isActive: true,
   },
   {
     title: 'Customer',
@@ -16,7 +21,7 @@ export const sidebarData = [
   {
     title: 'Appointment',
     url: ROUTE.APPOINTMENT.ROOT,
-    icon: Receipt,
+    icon: ClipboardList,
   },
   {
     title: 'Coupon',
@@ -27,5 +32,6 @@ export const sidebarData = [
     title: 'Settings',
     url: ROUTE.SETTINGS.ROOT,
     icon: Settings2,
+    isHidden: !isSuperAdmin,
   },
 ];

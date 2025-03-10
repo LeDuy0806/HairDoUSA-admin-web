@@ -36,12 +36,13 @@ import {
 import {ROUTE} from '@/constants/route';
 import {APPOINTMENT_STATUS} from '@/constants/value';
 import useDebounce from '@/hooks/use-debounce';
+import {cn} from '@/lib/utils';
 import {
   useGetAllAppointmentsQuery,
   useUpdateAppointmentMutation,
 } from '@/services/appointment';
 import moment from 'moment-timezone';
-import {lazy, Suspense, useEffect, useMemo, useState} from 'react';
+import {lazy, Suspense, useCallback, useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
 
 const ProcessAppointmentPaymentDialog = lazy(
@@ -51,15 +52,19 @@ const ProcessAppointmentPaymentDialog = lazy(
 export const columns = [
   {
     accessorKey: 'customer',
-    header: 'Customer',
+    header: <div className="pl-4 text-left">Customer</div>,
     cell: ({row}) => {
       const customer = row.getValue('customer');
-      return `${customer?.lastName} - ${customer?.phoneNumber}`;
+      return (
+        <div className="pl-4 text-left">
+          {`${customer?.lastName} (${customer?.phoneNumber})`}
+        </div>
+      );
     },
   },
   {
     accessorKey: 'totalAmount',
-    header: 'Total',
+    header: 'Total ($)',
     cell: ({row}) => row.getValue('totalAmount'),
   },
   {
@@ -107,14 +112,32 @@ export const columns = [
         );
       };
 
+      const renderStatusColor = useCallback(status => {
+        switch (status) {
+          case 'WAITING':
+            return 'text-yellow-500';
+          case 'COMPLETED':
+            return 'text-green-500';
+          case 'IN_SERVICE':
+            return 'text-orange-500';
+          default:
+            return '';
+        }
+      }, []);
+      
       return (
-        <Select defaultValue={status} onValueChange={updateAppointmentStatus}>
-          <SelectTrigger>
+        <Select defaultValue={status} value={status} onValueChange={updateAppointmentStatus}>
+          <SelectTrigger
+            className={cn(
+              renderStatusColor(status),
+              'relative justify-center font-medium',
+              '[&>svg]:absolute [&>svg]:right-3',
+            )}>
             <SelectValue placeholder="Change status" />
           </SelectTrigger>
           <SelectContent className="capitalize">
             {Object.values(APPOINTMENT_STATUS).map(st => (
-              <SelectItem key={st} value={st}>
+              <SelectItem className={cn(renderStatusColor(st), "font-medium")} key={st} value={st}>
                 {st.replace(/_/g, ' ')}
               </SelectItem>
             ))}
@@ -126,7 +149,20 @@ export const columns = [
   {
     accessorKey: 'paymentStatus',
     header: 'Payment status',
-    cell: ({row}) => row.getValue('paymentStatus'),
+    cell: ({row}) => {
+      const status = row.getValue('paymentStatus');
+
+      return (
+        <div
+          className={
+            status === 'PAID'
+              ? 'font-medium text-cyan-500'
+              : 'font-medium text-red-500'
+          }>
+          {status}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'createdAt',
@@ -188,8 +224,6 @@ const AppointmentPage = () => {
   const appointmentPhoneNumber = state?.customerPhoneNumber;
   const action = state?.action ?? 'none';
 
-  console.log({state});
-
   const [{pageIndex, pageSize}, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -214,7 +248,7 @@ const AppointmentPage = () => {
       populate: 'customer,coupon',
     };
 
-    if (debouncedKeyword && debouncedKeyword.length > 4) {
+    if (debouncedKeyword) {
       q.phoneNumber = debouncedKeyword;
     }
 
@@ -280,7 +314,7 @@ const AppointmentPage = () => {
                       onCheckedChange={value =>
                         column.toggleVisibility(!!value)
                       }>
-                      {column.id}
+                      {column.columnDef.header}
                     </DropdownMenuCheckboxItem>
                   );
                 })}
@@ -300,7 +334,7 @@ const AppointmentPage = () => {
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map(header => {
                     return (
-                      <TableHead key={header.id}>
+                      <TableHead className="text-center" key={header.id}>
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -320,7 +354,9 @@ const AppointmentPage = () => {
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map(cell => (
-                      <TableCell key={cell.id} className="min-w-max">
+                      <TableCell
+                        key={cell.id}
+                        className="min-w-max text-center">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
