@@ -21,6 +21,14 @@ import {Separator} from '@/components/ui/separator';
 import {COUPON_TYPE} from '@/constants/value';
 
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {cn} from '@/lib/utils';
+import {
   useCreateCouponMutation,
   useUpdateCouponMutation,
 } from '@/services/coupon';
@@ -28,20 +36,12 @@ import {zodResolver} from '@hookform/resolvers/zod';
 import {DialogClose, DialogDescription} from '@radix-ui/react-dialog';
 import {AlertCircle, PencilLine, PlusIcon} from 'lucide-react';
 import moment from 'moment-timezone';
-import {use, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {toast} from 'sonner';
 import {z} from 'zod';
 import {Alert, AlertDescription, AlertTitle} from '../ui/alert';
 import {Input} from '../ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 
 const AddCouponDialog = ({isEdit, data}) => {
   const [open, setOpen] = useState(false);
@@ -60,15 +60,15 @@ const AddCouponDialog = ({isEdit, data}) => {
       discountValue: z.coerce
         .number({
           required_error: 'Please enter discount value',
-          invalid_type_error: 'Please enter discount value'
+          invalid_type_error: 'Please enter discount value',
         })
-        .nonnegative("Discount value can not be negative"),
+        .nonnegative('Discount value can not be negative'),
       usageLimit: z.coerce
         .number({
           required_error: 'Please enter usage limit',
-          invalid_type_error: 'Please enter discount value'
+          invalid_type_error: 'Please enter discount value',
         })
-        .nonnegative("Usage limit can not be negative"),
+        .nonnegative('Usage limit can not be negative'),
       description: z.string().max(100, {
         message: 'Description must be less than 100 characters',
       }),
@@ -195,13 +195,22 @@ const AddCouponDialog = ({isEdit, data}) => {
 
     const code = !isEdit ? generatedCodeFromName : values.code;
 
+    console.log("Valid from: ", values.validFrom);
+    console.log("Valid until: ", values.validUntil);
+    
+    const test = moment(values.validFrom).toISOString(true);
+    const test2 = moment(values.validUntil).toISOString(true);
+
+    console.log("Valid from: ", test);
+    console.log("Valid until: ", test2);
+
     handler.mutate(
       {
         ...values,
         code,
         discountType,
-        validFrom: moment(values.validFrom).toISOString(),
-        validUntil: moment(values.validUntil).toISOString(),
+        validFrom: moment(values.validFrom).toISOString(true),
+        validUntil: moment(values.validUntil).toISOString(true),
       },
       {
         onSuccess: res => {
@@ -279,7 +288,7 @@ const AddCouponDialog = ({isEdit, data}) => {
                           placeholder="Enter discount amount"
                           className={cn(
                             'pr-12 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-                            form.formState.errors["discountValue"] &&
+                            form.formState.errors['discountValue'] &&
                               'border-destructive focus-visible:ring-destructive',
                           )}
                         />

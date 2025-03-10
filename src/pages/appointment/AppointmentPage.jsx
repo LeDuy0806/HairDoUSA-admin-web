@@ -42,7 +42,7 @@ import {
   useUpdateAppointmentMutation,
 } from '@/services/appointment';
 import moment from 'moment-timezone';
-import {lazy, Suspense, useCallback, useEffect, useMemo, useState} from 'react';
+import {lazy, Suspense, useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
 
 const ProcessAppointmentPaymentDialog = lazy(
@@ -112,7 +112,7 @@ export const columns = [
         );
       };
 
-      const renderStatusColor = useCallback(status => {
+      const renderStatusColor = status => {
         switch (status) {
           case 'WAITING':
             return 'text-yellow-500';
@@ -123,10 +123,13 @@ export const columns = [
           default:
             return '';
         }
-      }, []);
-      
+      };
+
       return (
-        <Select defaultValue={status} value={status} onValueChange={updateAppointmentStatus}>
+        <Select
+          defaultValue={status}
+          value={status}
+          onValueChange={updateAppointmentStatus}>
           <SelectTrigger
             className={cn(
               renderStatusColor(status),
@@ -137,7 +140,10 @@ export const columns = [
           </SelectTrigger>
           <SelectContent className="capitalize">
             {Object.values(APPOINTMENT_STATUS).map(st => (
-              <SelectItem className={cn(renderStatusColor(st), "font-medium")} key={st} value={st}>
+              <SelectItem
+                className={cn(renderStatusColor(st), 'font-medium')}
+                key={st}
+                value={st}>
                 {st.replace(/_/g, ' ')}
               </SelectItem>
             ))}

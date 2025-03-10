@@ -35,10 +35,12 @@ import {ScrollArea} from '../ui/scroll-area';
 
 const formSchema = z.object({
   phoneNumber: z.string().nonempty('Please select a customer'),
-  subtotal: z.coerce.number({
-    required_error: 'Please enter subtotal',
-    invalid_type_error: 'Please enter subtotal',
-  }).nonnegative('Please enter a valid number'),
+  subtotal: z.coerce
+    .number({
+      required_error: 'Please enter subtotal',
+      invalid_type_error: 'Please enter subtotal',
+    })
+    .nonnegative('Please enter a valid number'),
 });
 
 const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
