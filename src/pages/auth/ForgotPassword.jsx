@@ -10,43 +10,49 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
-import InputPassword from '@/components/ui/input-password';
 import {ROUTE} from '@/constants/route';
-import {useLoginMutation} from '@/services/auth';
+import {useForgotPasswordMutation} from '@/services/auth';
 import {AlertCircle} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {useFormContext} from 'react-hook-form';
-import {Link, useNavigate} from 'react-router';
+import {useNavigate} from 'react-router';
 import {toast} from 'sonner';
 
-const LoginPage = () => {
+const ForgotPassword = () => {
   const navigate = useNavigate();
 
   const form = useFormContext();
 
   const [commonError, setCommonError] = useState(null);
-  const loginMutation = useLoginMutation();
+  const forgotPasswordMutation = useForgotPasswordMutation();
 
-  const loading = loginMutation.isPending;
+  const loading = forgotPasswordMutation.isPending;
 
-  const {email, password} = form.watch();
+  const {email} = form.watch();
 
   useEffect(() => {
     if (commonError) {
       setCommonError(null);
     }
-  }, [email, password]);
+  }, [email]);
 
   const onSubmit = async values => {
-    loginMutation.mutate(
+    if (values.email === '') {
+      form.setError('email', {
+        message: 'Please enter your email',
+      });
+      return;
+    }
+
+    forgotPasswordMutation.mutate(
       {
-        account: values.email,
-        password: values.password,
+        email: values.email,
+        resetPasswordUrl: `${window.location.origin}${ROUTE.AUTH.RESET_PASSWORD}`,
       },
       {
         onSuccess: res => {
           if (res.success) {
-            navigate(ROUTE.AUTH.TWO_FACTOR_AUTH, {
+            navigate(ROUTE.AUTH.LOGIN, {
               replace: true,
             });
             toast.success(res.message);
@@ -64,11 +70,13 @@ const LoginPage = () => {
     );
   };
 
+  console.log(form.formState.errors);
+
   return (
     <div className="w-full max-w-md">
       <CardWrapper
-        title="Login"
-        description="Please use your admin account to login">
+        title="Update Password"
+        description="Please type your email to reset your password">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="space-y-6">
@@ -91,24 +99,6 @@ const LoginPage = () => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({field}) => (
-                  <FormItem>
-                    <FormLabel>
-                      Password <span className="text-red-600">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <InputPassword
-                        {...field}
-                        placeholder="Enter your password"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
             {commonError && (
               <Alert
@@ -119,11 +109,6 @@ const LoginPage = () => {
                 <AlertDescription>{commonError}</AlertDescription>
               </Alert>
             )}
-            <Link
-              className="text-muted-foreground ml-auto flex justify-end text-sm underline"
-              to={ROUTE.AUTH.FORGOT_PASSWORD}>
-              Forgot Password?
-            </Link>
             <Button type="submit" className="w-full" isLoading={loading}>
               Continue
             </Button>
@@ -134,4 +119,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ForgotPassword;

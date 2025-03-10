@@ -9,44 +9,67 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {Input} from '@/components/ui/input';
 import InputPassword from '@/components/ui/input-password';
 import {ROUTE} from '@/constants/route';
-import {useLoginMutation} from '@/services/auth';
+import {useResetPasswordMutation} from '@/services/auth';
 import {AlertCircle} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {useFormContext} from 'react-hook-form';
-import {Link, useNavigate} from 'react-router';
+import {useLocation, useNavigate} from 'react-router';
 import {toast} from 'sonner';
 
-const LoginPage = () => {
+const ResetPassword = () => {
   const navigate = useNavigate();
 
   const form = useFormContext();
 
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const token = searchParams.get('token');
+
   const [commonError, setCommonError] = useState(null);
-  const loginMutation = useLoginMutation();
+  const resetPasswordMutation = useResetPasswordMutation();
 
-  const loading = loginMutation.isPending;
+  const loading = resetPasswordMutation.isPending;
 
-  const {email, password} = form.watch();
+  const {newPassword, confirmPassword} = form.watch();
 
   useEffect(() => {
     if (commonError) {
       setCommonError(null);
     }
-  }, [email, password]);
+  }, [newPassword, confirmPassword]);
+
+  useEffect(() => {
+    if (!token) {
+      location.href = ROUTE.AUTH.LOGIN;
+    }
+  }, [token]);
 
   const onSubmit = async values => {
-    loginMutation.mutate(
+    if (values.newPassword === '') {
+      form.setError('newPassword', {
+        message: 'Please enter your new password',
+      });
+      return;
+    }
+
+    if (values.confirmPassword === '') {
+      form.setError('confirmPassword', {
+        message: 'Please confirm your new password',
+      });
+      return;
+    }
+
+    resetPasswordMutation.mutate(
       {
-        account: values.email,
-        password: values.password,
+        token,
+        newPassword: values.newPassword,
       },
       {
         onSuccess: res => {
           if (res.success) {
-            navigate(ROUTE.AUTH.TWO_FACTOR_AUTH, {
+            navigate(ROUTE.AUTH.LOGIN, {
               replace: true,
             });
             toast.success(res.message);
@@ -67,24 +90,23 @@ const LoginPage = () => {
   return (
     <div className="w-full max-w-md">
       <CardWrapper
-        title="Login"
-        description="Please use your admin account to login">
+        title="Update Password"
+        description="Set new password for the account">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="space-y-6">
               <FormField
                 control={form.control}
-                name="email"
+                name="newPassword"
                 render={({field}) => (
                   <FormItem>
                     <FormLabel>
-                      Email <span className="text-red-600">*</span>
+                      New Password <span className="text-red-600">*</span>
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        autoFocus
+                      <InputPassword
                         {...field}
-                        placeholder="Enter your email"
+                        placeholder="Enter your new password"
                       />
                     </FormControl>
                     <FormMessage />
@@ -93,16 +115,17 @@ const LoginPage = () => {
               />
               <FormField
                 control={form.control}
-                name="password"
+                name="confirmPassword"
                 render={({field}) => (
                   <FormItem>
                     <FormLabel>
-                      Password <span className="text-red-600">*</span>
+                      Confirm New Password{' '}
+                      <span className="text-red-600">*</span>
                     </FormLabel>
                     <FormControl>
                       <InputPassword
                         {...field}
-                        placeholder="Enter your password"
+                        placeholder="Confirm your new password"
                       />
                     </FormControl>
                     <FormMessage />
@@ -119,11 +142,6 @@ const LoginPage = () => {
                 <AlertDescription>{commonError}</AlertDescription>
               </Alert>
             )}
-            <Link
-              className="text-muted-foreground ml-auto flex justify-end text-sm underline"
-              to={ROUTE.AUTH.FORGOT_PASSWORD}>
-              Forgot Password?
-            </Link>
             <Button type="submit" className="w-full" isLoading={loading}>
               Continue
             </Button>
@@ -134,4 +152,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ResetPassword;

@@ -38,3 +38,21 @@ export const useLogoutMutation = () => {
     },
   });
 };
+
+export const useForgotPasswordMutation = () => {
+  return useMutation({
+    mutationFn: async data => {
+      const res = await authService.forgotPassword(data);
+      return res.data;
+    },
+  });
+};
+
+export const useResetPasswordMutation = () => {
+  return useMutation({
+    mutationFn: async data => {
+      const res = await authService.resetPassword(data);
+      return res.data;
+    },
+  });
+};

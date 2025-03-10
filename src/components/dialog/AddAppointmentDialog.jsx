@@ -19,6 +19,7 @@ import {
 
 import {ROUTE} from '@/constants/route';
 import useDebounce from '@/hooks/use-debounce';
+import {cn} from '@/lib/utils';
 import {useCreateAppointmentMutation} from '@/services/appointment';
 import {useGetAllCustomersQuery} from '@/services/customer';
 import {zodResolver} from '@hookform/resolvers/zod';
@@ -174,7 +175,11 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="col-span-4 w-full justify-start">
+                          className={cn(
+                            form.formState.errors['phoneNumber'] &&
+                              'border-destructive focus-visible:ring-destructive',
+                            'col-span-4 w-full justify-start',
+                          )}>
                           {selectedCustomer
                             ? // ? `${selectedCustomerIns?.lastName} - ${selectedCustomer}`
                               `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName} (${selectedCustomer})`
@@ -232,7 +237,11 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                     <FormLabel className="col-span-1">Subtotal</FormLabel>
                     <Input
                       {...field}
-                      className="col-span-4"
+                      className={cn(
+                        form.formState.errors['phoneNumber'] &&
+                          'border-destructive focus-visible:ring-destructive',
+                        'col-span-4',
+                      )}
                       placeholder="Enter subtotal"
                       type="number"
                       min="0"
@@ -257,7 +266,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
             )}
 
             <DialogFooter className="mt-8 justify-end">
-              <DialogClose asChild>
+              <DialogClose className="mr-auto" asChild>
                 <Button type="button" variant="ghost" disabled={loading}>
                   Close
                 </Button>

@@ -19,6 +19,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
+import FormPhoneField from '@/components/coupon/FormPhoneField';
+import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
+import {Input} from '@/components/ui/input';
 import {ROUTE} from '@/constants/route';
 import {
   useCreateCustomerMutation,
@@ -27,15 +30,11 @@ import {
 import {zodResolver} from '@hookform/resolvers/zod';
 import {AlertCircle, PencilLine, PlusIcon} from 'lucide-react';
 import moment from 'moment-timezone';
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {useNavigate} from 'react-router';
 import {toast} from 'sonner';
 import {z} from 'zod';
-import FormPhoneField from '@/components/coupon/FormPhoneField';
-import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
-import {Input} from '@/components/ui/input';
-import { formatUSPhoneNumber } from '@/utils/PhoneNumberFormatter';
 
 const formSchema = z.object({
   firstName: z.string().nonempty('Please enter first name'),
@@ -57,12 +56,20 @@ const AddCustomerDialog = ({isEdit, data}) => {
     },
   });
 
+  const formatFetchedPhoneNumber = useCallback(phoneNumber => {
+    let digits = phoneNumber.replace(/\D/g, '');
+
+    if (digits.length === 11) {
+      return `${digits.slice(1, 4)} ${digits.slice(4, 7)} ${digits.slice(7, 11)}`;
+    }
+  }, []);
+
   useEffect(() => {
     if (data) {
       form.reset({
         ...data,
         phoneNumber: data.phoneNumber.startsWith('+1')
-          ? formatUSPhoneNumber(data.phoneNumber)
+          ? formatFetchedPhoneNumber(data.phoneNumber)
           : data.phoneNumber,
         birthDate: data.birthDate
           ? moment(data.birthDate).format('YYYY-MM-DD')
@@ -230,27 +237,25 @@ const AddCustomerDialog = ({isEdit, data}) => {
             )}
 
             <DialogFooter className="mt-8">
-            <DialogClose asChild>
+              <DialogClose className={!isEdit ? 'mr-auto' : ''} asChild>
                 <Button type="button" variant="ghost" disabled={loading}>
                   Close
                 </Button>
               </DialogClose>
-              <div>
+              <Button
+                type="submit"
+                disabled={loading}
+                variant={isEdit ? 'default' : 'secondary'}>
+                {isEdit ? 'Save' : 'Confirm'}
+              </Button>
+              {!isEdit && (
                 <Button
-                  type="submit"
-                  disabled={loading}
-                  variant={isEdit ? 'default' : 'secondary'}>
-                  {isEdit ? 'Save' : 'Confirm'}
+                  type="button"
+                  onClick={() => onContinue(form.watch(), true)}
+                  disabled={loading}>
+                  Confirm with new appointment
                 </Button>
-                {!isEdit && (
-                  <Button
-                    type="button"
-                    onClick={() => onContinue(form.watch(), true)}
-                    disabled={loading}>
-                    Confirm with new appointment
-                  </Button>
-                )}
-              </div>
+              )}
             </DialogFooter>
           </form>
         </Form>

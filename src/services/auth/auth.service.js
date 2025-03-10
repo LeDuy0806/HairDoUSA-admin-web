@@ -7,4 +7,8 @@ export const authService = {
   getMe: async () => await instance.get('/auth/me'),
   changePassword: async data =>
     await instance.post('/auth/change-password', data),
+  forgotPassword: async data =>
+    await instance.post('/auth/forgot-password', data),
+  resetPassword: async data =>
+    await instance.post('/auth/reset-password', data),
 };

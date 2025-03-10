@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
+import {cn} from '@/lib/utils';
 import {useCreateAdminMutation, useUpdateAdminMutation} from '@/services/user';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {AlertCircle, PencilLine, PlusIcon} from 'lucide-react';
@@ -33,17 +34,18 @@ import InputPassword from '../ui/input-password';
 const formSchema = z
   .object({
     name: z.string().nonempty('Please enter first name'),
-    email: z.string().nonempty('Please enter email address').email('Invalid email address'),
+    email: z
+      .string()
+      .nonempty('Please enter email address')
+      .email('Invalid email address'),
     password: z
       .string()
-      .nonempty('Please enter password')
       .min(6, 'Password must be at least 6 characters')
       .optional()
       .nullable()
       .or(z.literal('')),
     confirmPassword: z
       .string()
-      .nonempty('Please enter confirm password')
       .min(6, 'Password must be at least 6 characters')
       .optional()
       .nullable()
@@ -88,7 +90,7 @@ const AddAdminDialog = ({isEdit, data}) => {
   const loading =
     createAdminMutation.isPending || updateAdminMutation.isPending;
 
-    const onSubmit = async values => {
+  const onSubmit = async values => {
     const handler = isEdit ? updateAdminMutation : createAdminMutation;
 
     handler.mutate(values, {
@@ -159,13 +161,18 @@ const AddAdminDialog = ({isEdit, data}) => {
                         <InputPassword
                           {...field}
                           placeholder="Enter your password"
+                          className={cn(
+                            form.formState.errors['password'] &&
+                              'border-destructive focus-visible:ring-destructive',
+                            '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                          )}
                         />
                       </div>
                     </FormControl>
                   </div>
                   <div className="grid grid-cols-5 items-center gap-2">
                     <div className="col-span-2" />
-                    <FormDescription className="col-span-3 text-xs">
+                    <FormDescription className="col-span-3 pl-2 text-xs">
                       Default password is 123456
                     </FormDescription>
                     <div className="col-span-2" />
@@ -189,6 +196,11 @@ const AddAdminDialog = ({isEdit, data}) => {
                         <InputPassword
                           {...field}
                           placeholder="Re-enter your password"
+                          className={
+                            form.formState.errors['confirmPassword']
+                              ? 'border-destructive focus-visible:ring-destructive'
+                              : ''
+                          }
                         />
                       </div>
                     </FormControl>

@@ -44,6 +44,7 @@ import {
 import moment from 'moment-timezone';
 import {lazy, Suspense, useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
+import { formatUSPhoneNumber } from '@/utils/PhoneNumberFormatter';
 
 const ProcessAppointmentPaymentDialog = lazy(
   () => import('@/components/dialog/ProcessAppointmentPaymentDialog'),
@@ -57,7 +58,7 @@ export const columns = [
       const customer = row.getValue('customer');
       return (
         <div className="pl-4 text-left">
-          {`${customer?.lastName} (${customer?.phoneNumber})`}
+          {`${customer?.firstName} ${customer?.lastName} (${formatUSPhoneNumber  (customer?.phoneNumber)})`}
         </div>
       );
     },
