@@ -60,7 +60,7 @@ const BarChartCard = ({
           margin={{
             left: 12,
             right: 12,
-            top: 12,
+            top: 36,
             bottom: 12,
           }}
           accessibilityLayer
