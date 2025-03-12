@@ -1,97 +1,130 @@
-import ChartCard from '@/components/dashboard/ChartCard';
+import BarChartCard from '@/components/dashboard/BarChartCard';
+import LineChartCard from '@/components/dashboard/LineChartCard';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import {
+  useGetAppointmentHourlyQuery,
+  useGetBarChartDataMonthlyQuery,
+  useGetBarChartDataWeeklyQuery,
+} from '@/services/dashboard/dashboard.query';
 import {ChevronDown} from 'lucide-react';
-
-const newCustomersData = [
-  {
-    week: 'Week 1',
-    customers: 320,
-  },
-  {
-    week: 'Week 2',
-    customers: 280,
-  },
-  {
-    week: 'Week 3',
-    customers: 450,
-  },
-  {
-    week: 'Week 4',
-    customers: 390,
-  },
-  {
-    week: 'Week 5',
-    customers: 480,
-  },
-  {
-    week: 'Week 6',
-    customers: 520,
-  },
-  {
-    week: 'Week 7',
-    customers: 430,
-  },
-  {
-    week: 'Week 8',
-    customers: 550,
-  },
-];
-
-const newCouponsData = [
-  {
-    week: 'Week 1',
-    coupons: 45,
-  },
-  {
-    week: 'Week 2',
-    coupons: 32,
-  },
-  {
-    week: 'Week 3',
-    coupons: 48,
-  },
-  {
-    week: 'Week 4',
-    coupons: 28,
-  },
-  {
-    week: 'Week 5',
-    coupons: 43,
-  },
-  {
-    week: 'Week 6',
-    coupons: 39,
-  },
-  {
-    week: 'Week 7',
-    coupons: 52,
-  },
-  {
-    week: 'Week 8',
-    coupons: 45,
-  },
-];
+import moment from 'moment-timezone';
+import {useMemo} from 'react';
 
 const newCustomersChartConfig = {
-  customers: {
+  total: {
     label: 'Customers',
   },
 };
 
-const newCouponsChartConfig = {
-  coupons: {
-    label: 'Coupons',
+const newAppointmentChartConfig = {
+  total: {
+    label: 'Appointments',
+  },
+};
+
+const revenueChartConfig = {
+  total: {
+    label: 'Revenue',
+  },
+};
+
+const appointmentHourlyConfig = {
+  total: {
+    label: 'Today',
+  },
+  totalYesterday: {
+    label: 'Yesterday',
   },
 };
 
 const DashboardPage = () => {
+  const barChartDataWeeklyQuery = useGetBarChartDataWeeklyQuery({
+    numberWeek: 8,
+  });
+  const barChartWeeklyData = useMemo(
+    () => barChartDataWeeklyQuery?.data?.data ?? [],
+    [barChartDataWeeklyQuery.data],
+  );
+  const weeklyCustomers = barChartWeeklyData?.customers ?? [];
+  const weeklyAppointments = barChartWeeklyData?.appointments ?? [];
+  const weeklyRevenue = barChartWeeklyData?.revenue ?? [];
+
+  const barChartDataMonthlyQuery = useGetBarChartDataMonthlyQuery({
+    numberMonth: 4,
+  });
+  const barChartMonthlyData = useMemo(
+    () => barChartDataMonthlyQuery?.data?.data ?? [],
+    [barChartDataMonthlyQuery.data],
+  );
+  const monthlyCustomers = barChartMonthlyData?.customers ?? [];
+  const monthlyAppointments = barChartMonthlyData?.appointments ?? [];
+  const monthlyRevenue = barChartMonthlyData?.revenue ?? [];
+
+  console.log('today: ', moment().format('YYYY-MM-DD'));
+  console.log('yesterday: ', moment().subtract(1, 'day').format('YYYY-MM-DD'));
+  const appointmentHourlyQuery = useGetAppointmentHourlyQuery({
+    // today: '2025-03-08', // For testing, the best data between this time span
+    // yesterday: '2025-02-13',
+    today: moment().format('YYYY-MM-DD'),
+    yesterday: moment().subtract(1, 'day').format('YYYY-MM-DD'),
+  });
+
+
+  const mergeHourlyData = (todayData, yesterdayData) => {
+    const yesterdayMap = new Map();
+
+    yesterdayData.forEach(item => {
+      yesterdayMap.set(item.hour, item.total);
+    });
+
+    return todayData.map(todayItem => {
+      return {
+        hour: todayItem.hour,
+        total: todayItem.total,
+        totalYesterday: yesterdayMap.get(todayItem.hour) || 0,
+      };
+    });
+  };
+
+  const appointmentHourlyToday = useMemo(
+    () => appointmentHourlyQuery.data?.data?.today ?? [],
+    [appointmentHourlyQuery.data],
+  );
+  const appointmentHourlyYesterday = useMemo(
+    () => appointmentHourlyQuery.data?.data?.yesterday ?? [],
+    [appointmentHourlyQuery.data],
+  );
+  const lineChartData = mergeHourlyData(
+    appointmentHourlyToday,
+    appointmentHourlyYesterday,
+  );
+  const aptTodayHourlyPeekHour = useMemo(
+    () => appointmentHourlyQuery.data?.data?.todayPeakHour ?? '',
+    [appointmentHourlyQuery.data],
+  );
+  const aptYesterdayPeekHour = useMemo(
+    () => appointmentHourlyQuery.data?.data?.yesterdayPeakHour ?? '',
+    [appointmentHourlyQuery.data],
+  );
+
   return (
     <div className="h-full w-full">
       <h3 className="text-2xl font-semibold">Dashboard</h3>
+      <div className="mt-5">
+        <LineChartCard
+          title="Appointments per hour"
+          chartData={lineChartData}
+          chartConfig={appointmentHourlyConfig}
+          XAxisDataKey="hour"
+          lineDataKeys={['total', 'totalYesterday']}
+          todayPeak={aptTodayHourlyPeekHour}
+          yesterdayPeak={aptYesterdayPeekHour}
+        />
+      </div>
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="my-5 [&[data-state=open]>div>svg]:-rotate-180">
           <div className="flex cursor-pointer items-center">
@@ -100,19 +133,29 @@ const DashboardPage = () => {
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent className="grid grid-cols-3 gap-5">
-          <ChartCard
+          <BarChartCard
             title="New Customers"
-            chartData={newCustomersData}
+            chartData={weeklyCustomers ? [...weeklyCustomers].reverse() : []}
             chartConfig={newCustomersChartConfig}
-            chartDataKey="customers"
+            chartDataKey="total"
             timeSpanText="week"
           />
-          <ChartCard
-            title="New Coupons"
-            chartData={newCouponsData}
-            chartConfig={newCouponsChartConfig}
-            chartDataKey="coupons"
+          <BarChartCard
+            title="New Appointments"
+            chartData={
+              weeklyAppointments ? [...weeklyAppointments].reverse() : []
+            }
+            chartConfig={newAppointmentChartConfig}
+            chartDataKey="total"
             timeSpanText="week"
+          />
+          <BarChartCard
+            title="Revenue"
+            chartData={weeklyRevenue ? [...weeklyRevenue].reverse() : []}
+            chartConfig={revenueChartConfig}
+            chartDataKey="total"
+            timeSpanText="week"
+            differenceUnitCharacter="$"
           />
         </CollapsibleContent>
       </Collapsible>
@@ -124,19 +167,29 @@ const DashboardPage = () => {
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent className="grid grid-cols-3 gap-5">
-          <ChartCard
+          <BarChartCard
             title="New Customers"
-            chartData={newCustomersData}
+            chartData={monthlyCustomers ? [...monthlyCustomers].reverse() : []}
             chartConfig={newCustomersChartConfig}
-            chartDataKey="customers"
+            chartDataKey="total"
             timeSpanText="month"
           />
-          <ChartCard
-            title="New Coupons"
-            chartData={newCouponsData}
-            chartConfig={newCouponsChartConfig}
-            chartDataKey="coupons"
+          <BarChartCard
+            title="New Appointments"
+            chartData={
+              monthlyAppointments ? [...monthlyAppointments].reverse() : []
+            }
+            chartConfig={newAppointmentChartConfig}
+            chartDataKey="total"
             timeSpanText="month"
+          />
+          <BarChartCard
+            title="Revenue"
+            chartData={monthlyRevenue ? [...monthlyRevenue].reverse() : []}
+            chartConfig={revenueChartConfig}
+            chartDataKey="total"
+            timeSpanText="month"
+            differenceUnitCharacter="$"
           />
         </CollapsibleContent>
       </Collapsible>

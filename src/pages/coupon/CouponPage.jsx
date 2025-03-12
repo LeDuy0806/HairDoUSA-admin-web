@@ -45,8 +45,10 @@ import {toast} from 'sonner';
 export const columns = [
   {
     accessorKey: 'name',
-    header: <div className="text-left pl-4">Name</div>,
-    cell: ({row}) => <div className="text-left pl-4">{row.getValue('name')}</div>,
+    header: <div className="pl-4 text-left">Name</div>,
+    cell: ({row}) => (
+      <div className="pl-4 text-left">{row.getValue('name')}</div>
+    ),
   },
   {
     accessorKey: 'code',
@@ -87,6 +89,29 @@ export const columns = [
     accessorKey: 'usedCount',
     header: 'Used count',
     cell: ({row}) => row.getValue('usedCount'),
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({row}) => {
+      if (
+        !moment
+          .utc()
+          .isBetween(row.getValue('validFrom'), row.getValue('validUntil'))
+      ) {
+        return <p className="font-medium text-red-500">Expired</p>;
+      }
+
+      if (row.getValue('usedCount') >= row.getValue('usageLimit')) {
+        return <p className="font-medium text-orange-500">Out of Usage</p>;
+      }
+
+      if (!row.getValue('isActive')) {
+        return <p className="font-medium text-yellow-500">Inactive</p>;
+      }
+
+      return <p className="font-medium text-cyan-500">Active</p>;
+    },
   },
   {
     accessorKey: 'isActive',

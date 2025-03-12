@@ -5,16 +5,22 @@ import {
 } from '@/components/ui/chart';
 import {Bar, BarChart} from 'recharts';
 
-const ChartCard = ({
+const BarChartCard = ({
   title,
   chartDataKey,
   chartData,
   chartConfig,
   timeSpanText,
+  differenceUnitCharacter = '',
 }) => {
-  const lastTimeSpanAmount = chartData[chartData.length - 2][chartDataKey] || 0;
+  const lastTimeSpanAmount =
+    chartData && chartData.length >= 2
+      ? chartData[chartData.length - 2][chartDataKey]
+      : 0;
   const currentTimeSpanAmount =
-    chartData[chartData.length - 1][chartDataKey] || 0;
+    chartData && chartData.length >= 2
+      ? chartData[chartData.length - 1][chartDataKey]
+      : 0;
 
   const difference = currentTimeSpanAmount - lastTimeSpanAmount;
   const percentageChange =
@@ -32,8 +38,8 @@ const ChartCard = ({
       <p className="text-sm font-normal">{title}</p>
       <div>
         <p className="text-2xl font-bold">
-          {currentTimeSpanAmount - lastTimeSpanAmount > 0 ? '+' : ''}
-          {currentTimeSpanAmount - lastTimeSpanAmount}
+          {currentTimeSpanAmount - lastTimeSpanAmount >= 0 ? '+' : ''}
+          {currentTimeSpanAmount - lastTimeSpanAmount}{differenceUnitCharacter}
         </p>
         <p className="text-muted-foreground text-xs font-normal">
           {percentageChange > 0 ? '+' : ''}
@@ -50,4 +56,4 @@ const ChartCard = ({
   );
 };
 
-export default ChartCard;
+export default BarChartCard;

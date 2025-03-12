@@ -2,6 +2,11 @@ export const QUERY_KEY = {
   AUTH: {
     GET_ME: 'auth/getMe',
   },
+  DASHBOARD: {
+    GET_BAR_CHART_WEEKLY: 'dashboard/getBarChartWeekly',
+    GET_BAR_CHART_MONTHLY: 'dashboard/getBarChartMonthly',
+    GET_APPOINTMENT_HOURLY: 'dashboard/getAppointmentHourly',
+  },
   CUSTOMER: {
     GET_ALL: 'customer/getAll',
     GET_DETAIL: 'customer/getDetail',

@@ -242,8 +242,8 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
 
                 {appointment?.coupon && (
                   <>
-                    <p className="col-span-2">Discount</p>
-                    <div className="col-span-3 inline-flex flex-col items-end gap-2">
+                    <p className="col-span-2 text-green-500">Discount</p>
+                    <div className="col-span-3 inline-flex flex-col items-end gap-2 text-green-500">
                       <p className="text-right">-${calculatedDiscount}</p>
                       <button
                         type="button"
@@ -262,8 +262,8 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
                 )}
                 <hr className="col-span-5" />
 
-                <p className="col-span-2">Total</p>
-                <p className="col-span-3 text-right">
+                <p className="col-span-2 text-lg font-medium">Total</p>
+                <p className="col-span-3 text-right text-lg font-medium">
                   ${appointment?.totalAmount ?? 0}
                 </p>
               </div>
