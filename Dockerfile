@@ -19,7 +19,7 @@ WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-COPY .env /app/.env
+
 RUN npm run build
 
 # Step 2: Serve the application with a lightweight static file server
