@@ -12,6 +12,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  define: {
+    'process.env': process.env,
+  },
   optimizeDeps: {
     esbuildOptions: {
       // Node.js global to browser globalThis
