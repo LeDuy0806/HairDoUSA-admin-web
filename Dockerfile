@@ -20,6 +20,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ARG VITE_API_URL
+
 RUN npm run build
 
 # Step 2: Serve the application with a lightweight static file server
