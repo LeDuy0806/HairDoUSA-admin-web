@@ -75,7 +75,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       phoneNumber: '',
-      subtototal: 0,
+      subtotal: 0,
     },
   });
 
@@ -238,7 +238,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                     <Input
                       {...field}
                       className={cn(
-                        form.formState.errors['phoneNumber'] &&
+                        form.formState.errors['subtotal'] &&
                           'border-destructive focus-visible:ring-destructive',
                         'col-span-4',
                       )}

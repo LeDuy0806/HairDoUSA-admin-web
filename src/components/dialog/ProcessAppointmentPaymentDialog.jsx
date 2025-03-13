@@ -12,7 +12,7 @@ import {
   useUpdateAppointmentMutation,
 } from '@/services/appointment';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {AlertCircle, Loader, X} from 'lucide-react';
+import {AlertCircle, Loader, CircleX} from 'lucide-react';
 import {useEffect, useMemo, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {useLocation, useNavigate} from 'react-router';
@@ -25,6 +25,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -60,6 +61,9 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
 
   const form = useForm({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      couponCode: '',
+    },
   });
 
   const {couponCode} = form.watch();
@@ -195,6 +199,7 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
       <DialogContent>
         <DialogHeader className="mb-4">
           <DialogTitle>Process Payment</DialogTitle>
+          <DialogDescription />
         </DialogHeader>
         {getAppointmentDetail.isLoading ? (
           <div className="my-4 flex items-center justify-center">
@@ -243,18 +248,18 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
                 {appointment?.coupon && (
                   <>
                     <p className="col-span-2 text-green-500">Discount</p>
-                    <div className="col-span-3 inline-flex flex-col items-end gap-2 text-green-500">
+                    <div className="col-span-3 inline-flex flex-col items-end gap-2 text-green-600">
                       <p className="text-right">-${calculatedDiscount}</p>
                       <button
                         type="button"
                         disabled={removeCouponMutation.isPending}
                         onClick={onRemoveCoupon}
-                        className="bg-foreground cursor-pointer rounded px-2 py-1 text-white disabled:cursor-not-allowed disabled:bg-gray-300">
+                        className="bg-foreground flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-white disabled:cursor-not-allowed disabled:bg-gray-300">
                         {coupon?.code} - {formatCouponDiscountValue}{' '}
                         {removeCouponMutation.isPending ? (
                           <Loader className="inline-block size-4 animate-spin" />
                         ) : (
-                          <X className="inline-block size-4" />
+                          <CircleX className="inline-block size-4" />
                         )}
                       </button>
                     </div>
