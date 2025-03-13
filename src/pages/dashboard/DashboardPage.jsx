@@ -41,6 +41,54 @@ const appointmentHourlyConfig = {
   },
 };
 
+const formatMonthlyResponse = data => {
+  return data.map(item => {
+    return {
+      ...item,
+      month: moment(item.month, 'MM-YYYY').format('MMM YYYY'),
+    };
+  });
+};
+
+// Example: 11-2025 => 2025-03-10 - 2025-03-16
+const weekNumberToDateRange = week => {
+  const [weekNumber, year] = week.split('-');
+  const startDate = moment()
+    .isoWeekYear(year)
+    .isoWeek(weekNumber)
+    .startOf('isoWeek');
+  const endDate = moment()
+    .isoWeekYear(year)
+    .isoWeek(weekNumber)
+    .endOf('isoWeek');
+  return `${startDate.format('MM/DD')} - ${endDate.format('MM/DD')}`;
+};
+
+const formatWeeklyResponse = data => {
+  return data.map(item => {
+    return {
+      ...item,
+      week: weekNumberToDateRange(item.week),
+    };
+  });
+};
+
+const mergeHourlyData = (todayData, yesterdayData) => {
+  const yesterdayMap = new Map();
+
+  yesterdayData.forEach(item => {
+    yesterdayMap.set(item.hour, item.total);
+  });
+
+  return todayData.map(todayItem => {
+    return {
+      hour: todayItem.hour,
+      total: todayItem.total,
+      totalYesterday: yesterdayMap.get(todayItem.hour) || 0,
+    };
+  });
+};
+
 const DashboardPage = () => {
   const barChartDataWeeklyQuery = useGetBarChartDataWeeklyQuery({
     numberWeek: 8,
@@ -52,9 +100,12 @@ const DashboardPage = () => {
   const weeklyCustomers = barChartWeeklyData?.customers ?? [];
   const weeklyAppointments = barChartWeeklyData?.appointments ?? [];
   const weeklyRevenue = barChartWeeklyData?.revenue ?? [];
+  const formatWeeklyCustomers = formatWeeklyResponse(weeklyCustomers);
+  const formatWeeklyAppointments = formatWeeklyResponse(weeklyAppointments);
+  const formatWeeklyRevenue = formatWeeklyResponse(weeklyRevenue);
 
   const barChartDataMonthlyQuery = useGetBarChartDataMonthlyQuery({
-    numberMonth: 4,
+    numberMonth: 8,
   });
   const barChartMonthlyData = useMemo(
     () => barChartDataMonthlyQuery?.data?.data ?? [],
@@ -63,32 +114,16 @@ const DashboardPage = () => {
   const monthlyCustomers = barChartMonthlyData?.customers ?? [];
   const monthlyAppointments = barChartMonthlyData?.appointments ?? [];
   const monthlyRevenue = barChartMonthlyData?.revenue ?? [];
+  const formatMonthlyCustomers = formatMonthlyResponse(monthlyCustomers);
+  const formatMonthlyAppointments = formatMonthlyResponse(monthlyAppointments);
+  const formatMonthlyRevenue = formatMonthlyResponse(monthlyRevenue);
 
-  console.log('today: ', moment().format('YYYY-MM-DD'));
-  console.log('yesterday: ', moment().subtract(1, 'day').format('YYYY-MM-DD'));
   const appointmentHourlyQuery = useGetAppointmentHourlyQuery({
     // today: '2025-03-08', // For testing, the best data between this time span
     // yesterday: '2025-02-13',
     today: moment().format('YYYY-MM-DD'),
     yesterday: moment().subtract(1, 'day').format('YYYY-MM-DD'),
   });
-
-
-  const mergeHourlyData = (todayData, yesterdayData) => {
-    const yesterdayMap = new Map();
-
-    yesterdayData.forEach(item => {
-      yesterdayMap.set(item.hour, item.total);
-    });
-
-    return todayData.map(todayItem => {
-      return {
-        hour: todayItem.hour,
-        total: todayItem.total,
-        totalYesterday: yesterdayMap.get(todayItem.hour) || 0,
-      };
-    });
-  };
 
   const appointmentHourlyToday = useMemo(
     () => appointmentHourlyQuery.data?.data?.today ?? [],
@@ -135,26 +170,35 @@ const DashboardPage = () => {
         <CollapsibleContent className="grid grid-cols-3 gap-5">
           <BarChartCard
             title="New Customers"
-            chartData={weeklyCustomers ? [...weeklyCustomers].reverse() : []}
+            chartData={
+              formatWeeklyCustomers ? [...formatWeeklyCustomers].reverse() : []
+            }
             chartConfig={newCustomersChartConfig}
             chartDataKey="total"
             timeSpanText="week"
+            XAxisKey={'week'}
           />
           <BarChartCard
             title="New Appointments"
             chartData={
-              weeklyAppointments ? [...weeklyAppointments].reverse() : []
+              formatWeeklyAppointments
+                ? [...formatWeeklyAppointments].reverse()
+                : []
             }
             chartConfig={newAppointmentChartConfig}
             chartDataKey="total"
             timeSpanText="week"
+            XAxisKey={'week'}
           />
           <BarChartCard
             title="Revenue"
-            chartData={weeklyRevenue ? [...weeklyRevenue].reverse() : []}
+            chartData={
+              formatWeeklyRevenue ? [...formatWeeklyRevenue].reverse() : []
+            }
             chartConfig={revenueChartConfig}
             chartDataKey="total"
             timeSpanText="week"
+            XAxisKey={'week'}
             differenceUnitCharacter="$"
           />
         </CollapsibleContent>
@@ -169,26 +213,37 @@ const DashboardPage = () => {
         <CollapsibleContent className="grid grid-cols-3 gap-5">
           <BarChartCard
             title="New Customers"
-            chartData={monthlyCustomers ? [...monthlyCustomers].reverse() : []}
+            chartData={
+              formatMonthlyCustomers
+                ? [...formatMonthlyCustomers].reverse()
+                : []
+            }
             chartConfig={newCustomersChartConfig}
             chartDataKey="total"
             timeSpanText="month"
+            XAxisKey={'month'}
           />
           <BarChartCard
             title="New Appointments"
             chartData={
-              monthlyAppointments ? [...monthlyAppointments].reverse() : []
+              formatMonthlyAppointments
+                ? [...formatMonthlyAppointments].reverse()
+                : []
             }
             chartConfig={newAppointmentChartConfig}
             chartDataKey="total"
             timeSpanText="month"
+            XAxisKey={'month'}
           />
           <BarChartCard
             title="Revenue"
-            chartData={monthlyRevenue ? [...monthlyRevenue].reverse() : []}
+            chartData={
+              formatMonthlyRevenue ? [...formatMonthlyRevenue].reverse() : []
+            }
             chartConfig={revenueChartConfig}
             chartDataKey="total"
             timeSpanText="month"
+            XAxisKey={'month'}
             differenceUnitCharacter="$"
           />
         </CollapsibleContent>

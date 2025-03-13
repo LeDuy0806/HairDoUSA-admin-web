@@ -3,7 +3,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import {Bar, BarChart} from 'recharts';
+import {Bar, BarChart, XAxis} from 'recharts';
 
 const BarChartCard = ({
   title,
@@ -12,6 +12,7 @@ const BarChartCard = ({
   chartConfig,
   timeSpanText,
   differenceUnitCharacter = '',
+  XAxisKey,
 }) => {
   const lastTimeSpanAmount =
     chartData && chartData.length >= 2
@@ -39,7 +40,8 @@ const BarChartCard = ({
       <div>
         <p className="text-2xl font-bold">
           {currentTimeSpanAmount - lastTimeSpanAmount >= 0 ? '+' : ''}
-          {currentTimeSpanAmount - lastTimeSpanAmount}{differenceUnitCharacter}
+          {currentTimeSpanAmount - lastTimeSpanAmount}
+          {differenceUnitCharacter}
         </p>
         <p className="text-muted-foreground text-xs font-normal">
           {percentageChange > 0 ? '+' : ''}
@@ -48,6 +50,7 @@ const BarChartCard = ({
       </div>
       <ChartContainer config={chartConfig} className="h-[76px] w-full">
         <BarChart accessibilityLayer data={chartData}>
+          <XAxis dataKey={XAxisKey} hide />
           <ChartTooltip content={<ChartTooltipContent />} />
           <Bar dataKey={chartDataKey} fill={barColor} radius={4} />
         </BarChart>

@@ -8,6 +8,20 @@ import moment from 'moment-timezone';
 import {useState} from 'react';
 import {Line, LineChart, XAxis} from 'recharts';
 
+const RealtimeTimeDisplay = () => {
+  const [currentTime, setCurrentTime] = useState(
+    moment().format('MMMM Do YYYY, hh:mm:ss'),
+  );
+  setInterval(() => {
+    setCurrentTime(moment().format('MMMM Do YYYY, hh:mm:ss'));
+  }, 1000);
+  return (
+    <p className="text-muted-foreground text-sm font-medium">
+      Current Time: {currentTime}
+    </p>
+  );
+};
+
 const BarChartCard = ({
   title,
   chartData,
@@ -27,9 +41,27 @@ const BarChartCard = ({
       {...props}
       className="border-border flex flex-col gap-1 rounded-md border p-5">
       <div className="flex justify-between">
-        <div>
+        <div className="flex flex-col gap-1">
           <p className="text-base font-semibold">{title}</p>
-          <div>
+          <RealtimeTimeDisplay />
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex space-x-2">
+            <Checkbox
+              checked={secondaryVisible}
+              onCheckedChange={checked => {
+                setSecondaryVisible(checked);
+              }}
+              className="border-2"
+              id="yesterdayVisible"
+            />
+            <label
+              htmlFor="yesterdayVisible"
+              className="text-sm leading-none font-medium">
+              Display Yesterday
+            </label>
+          </div>
+          <div className="flex flex-col items-end">
             <p className="text-muted-foreground text-sm font-medium">
               Today peak: {todayPeak?.hour}h ({todayPeak?.total} appointments)
             </p>
@@ -38,21 +70,6 @@ const BarChartCard = ({
               appointments)
             </p>
           </div>
-        </div>
-        <div className="flex space-x-2">
-          <Checkbox
-            checked={secondaryVisible}
-            onCheckedChange={checked => {
-              setSecondaryVisible(checked);
-            }}
-            className="border-2"
-            id="yesterdayVisible"
-          />
-          <label
-            htmlFor="yesterdayVisible"
-            className="text-sm leading-none font-medium">
-            Yesterday
-          </label>
         </div>
       </div>
       <ChartContainer className="mt-3 h-48" config={chartConfig}>
