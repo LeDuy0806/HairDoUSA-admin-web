@@ -79,7 +79,7 @@ export const columns = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-2">
+            <div className="flex justify-center gap-2">
               <span className="font-medium">Applied coupon</span>
               <ChevronDown />
             </div>
@@ -125,9 +125,9 @@ export const columns = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-2">
               <span className="font-medium">Service status</span>
-              <ChevronDown />
+              <ChevronDown className="size-5" />
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -224,9 +224,9 @@ export const columns = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-2">
               <span className="font-medium">Payment status</span>
-              <ChevronDown />
+              <ChevronDown className="size-5" />
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -337,6 +337,10 @@ const AppointmentPage = () => {
   const [keyword, setKeyword] = useState('');
 
   const debouncedKeyword = useDebounce(keyword);
+
+  useEffect(() => {
+    setPagination(prev => ({...prev, pageIndex: 0}));
+  }, [debouncedKeyword]);
 
   const pagination = useMemo(
     () => ({

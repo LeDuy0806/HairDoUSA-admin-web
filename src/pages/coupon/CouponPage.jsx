@@ -45,7 +45,7 @@ import {
   useUpdateCouponMutation,
 } from '@/services/coupon';
 import moment from 'moment-timezone';
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
 
 export const columns = [
@@ -77,9 +77,9 @@ export const columns = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-1">
               <span className="font-medium">Coupon type</span>
-              <ChevronDown />
+              <ChevronDown className="size-5" />
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -138,9 +138,9 @@ export const columns = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-1">
               <span className="font-medium">Status</span>
-              <ChevronDown />
+              <ChevronDown className="size-5" />
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -189,9 +189,9 @@ export const columns = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-2">
               <span className="font-medium">Active status</span>
-              <ChevronDown />
+              <ChevronDown className="size-5" />
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -305,6 +305,10 @@ const CouponPage = () => {
 
   const [keyword, setKeyword] = useState('');
   const debouncedKeyword = useDebounce(keyword);
+
+  useEffect(() => {
+    setPagination(prev => ({...prev, pageIndex: 0}));
+  }, [debouncedKeyword]);
 
   const pagination = useMemo(
     () => ({

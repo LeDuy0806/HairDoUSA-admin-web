@@ -93,7 +93,9 @@ const ResetPassword = () => {
         title="Update Password"
         description="Set new password for the account">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6 md:space-y-8">
             <div className="space-y-6">
               <FormField
                 control={form.control}

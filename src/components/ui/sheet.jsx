@@ -2,6 +2,7 @@ import * as SheetPrimitive from '@radix-ui/react-dialog';
 import {XIcon} from 'lucide-react';
 
 import {cn} from '@/lib/utils';
+import React from 'react';
 
 function Sheet({...props}) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -19,9 +20,10 @@ function SheetPortal({...props}) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
 }
 
-function SheetOverlay({className, ...props}) {
+const SheetOverlay = React.forwardRef(({className, ...props}, ref) => {
   return (
     <SheetPrimitive.Overlay
+      ref={ref}
       data-slot="sheet-overlay"
       className={cn(
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80',
@@ -30,7 +32,7 @@ function SheetOverlay({className, ...props}) {
       {...props}
     />
   );
-}
+});
 
 function SheetContent({className, children, side = 'right', ...props}) {
   return (

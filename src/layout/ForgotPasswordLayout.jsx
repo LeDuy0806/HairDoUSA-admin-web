@@ -58,15 +58,31 @@ const ForgotPasswordLayout = () => {
       <Loader className="animate-spin" />
     </div>
   ) : (
-    <div className="flex h-screen w-full">
-      <div className="w-1/2">
+    <div className="flex h-screen w-full flex-col md:flex-row">
+      {/* On mobile: Full-screen background image */}
+      <div className="relative h-screen w-full md:hidden">
+        <img
+          src="/assets/images/frontdoor.webp"
+          alt="HairDo Frontdoor"
+          className="absolute h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 flex items-center justify-center px-4">
+          <FormProvider {...form}>
+            <Outlet />
+          </FormProvider>
+        </div>
+      </div>
+
+      {/* On desktop: Split screen layout */}
+      <div className="hidden md:block md:w-1/2">
         <img
           src="/assets/images/frontdoor.webp"
           alt="HairDo Frontdoor"
           className="h-full w-full object-cover"
         />
       </div>
-      <div className="flex w-1/2 items-center justify-center">
+      <div className="hidden md:flex md:w-1/2 md:items-center md:justify-center">
         <FormProvider {...form}>
           <Outlet />
         </FormProvider>

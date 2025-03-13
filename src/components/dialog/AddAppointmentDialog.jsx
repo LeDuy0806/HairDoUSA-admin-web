@@ -266,7 +266,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
             )}
 
             <DialogFooter className="mt-8 justify-end">
-              <DialogClose className="mr-auto" asChild>
+              <DialogClose className="mr-auto w-full md:w-auto" asChild>
                 <Button type="button" variant="ghost" disabled={loading}>
                   Close
                 </Button>

@@ -35,13 +35,13 @@ import {
 import useDebounce from '@/hooks/use-debounce';
 import {useGetAllAdminsQuery} from '@/services/user';
 import moment from 'moment-timezone';
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 
 export const columns = [
   {
     accessorKey: 'name',
-    header: 'Name',
-    cell: ({row}) => <div>{row.getValue('name')}</div>,
+    header: <div className="pl-4">Name</div>,
+    cell: ({row}) => <div className="pl-4">{row.getValue('name')}</div>,
   },
   {
     accessorKey: 'email',
@@ -98,6 +98,10 @@ const SettingsPage = () => {
   const [keyword, setKeyword] = useState('');
 
   const debouncedKeyword = useDebounce(keyword);
+
+  useEffect(() => {
+    setPagination(prev => ({...prev, pageIndex: 0}));
+  }, [debouncedKeyword]);
 
   const pagination = useMemo(
     () => ({
@@ -197,7 +201,7 @@ const SettingsPage = () => {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => {
                   return (
-                    <TableHead className="text-center" key={header.id}>
+                    <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -217,7 +221,7 @@ const SettingsPage = () => {
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}>
                   {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id} className="min-w-max text-center">
+                    <TableCell key={cell.id} className="min-w-max">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/sidebar';
 import {sidebarData} from '@/constants/sidebar-data';
 import {useAuthContext} from '@/context/AuthContext';
-import {ChevronLeft} from 'lucide-react';
 import {useCallback} from 'react';
 import {Link, useLocation} from 'react-router';
 
@@ -48,9 +47,6 @@ const AppSidebar = () => {
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="text-md font-semibold">Hairdo USA</span>
                   <span className="text-sm">Hair Salon</span>
-                </div>
-                <div className="ml-auto">
-                  <ChevronLeft className="size-5" />
                 </div>
               </a>
             </SidebarMenuButton>

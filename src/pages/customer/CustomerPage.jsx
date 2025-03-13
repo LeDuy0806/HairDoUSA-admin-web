@@ -36,7 +36,7 @@ import useDebounce from '@/hooks/use-debounce';
 import {useGetAllCustomersQuery} from '@/services/customer';
 import {formatUSPhoneNumber} from '@/utils/PhoneNumberFormatter';
 import moment from 'moment-timezone';
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 
 export const columns = [
   {
@@ -48,16 +48,16 @@ export const columns = [
   },
   {
     accessorKey: 'lastName',
-    header: <div className="pl-4 text-left">Last Name</div>,
+    header: 'Last Name',
     cell: ({row}) => (
-      <div className="pl-4 text-left">{row.getValue('lastName')}</div>
+      <div className="text-left">{row.getValue('lastName')}</div>
     ),
   },
   {
     accessorKey: 'phoneNumber',
-    header: <div className="pl-4 text-left">Phone Number</div>,
+    header: 'Phone Number',
     cell: ({row}) => (
-      <div className="min-w-max pl-4 text-left">
+      <div className="min-w-max text-left">
         {formatUSPhoneNumber(row.getValue('phoneNumber'))}
       </div>
     ),
@@ -66,7 +66,7 @@ export const columns = [
     accessorKey: 'birthDate',
     header: 'Birth Date',
     cell: ({row}) => (
-      <div className="min-w-max pl-4 text-left">
+      <div className="min-w-max text-left">
         {moment(row.getValue('birthDate')).format('MM-DD-YYYY')}
       </div>
     ),
@@ -122,6 +122,10 @@ const CustomerPage = () => {
   const [keyword, setKeyword] = useState('');
 
   const debouncedKeyword = useDebounce(keyword);
+
+  useEffect(() => {
+    setPagination(prev => ({...prev, pageIndex: 0}));
+  }, [debouncedKeyword]);
 
   const pagination = useMemo(
     () => ({

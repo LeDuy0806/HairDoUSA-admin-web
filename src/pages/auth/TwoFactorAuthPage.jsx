@@ -77,12 +77,16 @@ const TwoFactorAuthPage = () => {
                   <FormControl>
                     <InputOTP
                       autoFocus
-                      className="w-full"
+                      containerClassName="justify-center gap-1 sm:gap-2 max-w-full"
                       maxLength={6}
                       {...field}>
                       <InputOTPGroup>
                         {Array.from({length: 6}).map((_, index) => (
-                          <InputOTPSlot key={index} index={index} />
+                          <InputOTPSlot
+                            className="h-11 w-11 sm:h-14 sm:w-14"
+                            key={index}
+                            index={index}
+                          />
                         ))}
                       </InputOTPGroup>
                     </InputOTP>

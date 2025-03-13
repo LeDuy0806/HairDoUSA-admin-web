@@ -237,7 +237,11 @@ const AddCustomerDialog = ({isEdit, data}) => {
             )}
 
             <DialogFooter className="mt-8">
-              <DialogClose className={!isEdit ? 'mr-auto' : ''} asChild>
+              <DialogClose
+                className={
+                  !isEdit ? 'mr-auto w-full md:w-auto' : 'w-full md:w-auto'
+                }
+                asChild>
                 <Button type="button" variant="ghost" disabled={loading}>
                   Close
                 </Button>
