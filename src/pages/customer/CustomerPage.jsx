@@ -207,7 +207,7 @@ const CustomerPage = () => {
                       onCheckedChange={value =>
                         column.toggleVisibility(!!value)
                       }>
-                      {column.columnDef.header}
+                      {column.id}
                     </DropdownMenuCheckboxItem>
                   );
                 })}
