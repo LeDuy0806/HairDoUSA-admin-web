@@ -1,8 +1,8 @@
 import {BrowserRouter, Route, Routes} from 'react-router';
 import {ROUTE} from './constants/route';
 import AuthLayout from './layout/AuthLayout';
-import MainLayout from './layout/MainLayout';
 import ForgotPasswordLayout from './layout/ForgotPasswordLayout';
+import MainLayout from './layout/MainLayout';
 
 import ForgotPassword from './pages/auth/ForgotPassword';
 import LoginPage from './pages/auth/LoginPage';

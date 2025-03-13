@@ -34,9 +34,9 @@ import {
 } from '@/components/ui/table';
 import useDebounce from '@/hooks/use-debounce';
 import {useGetAllCustomersQuery} from '@/services/customer';
+import {formatUSPhoneNumber} from '@/utils/PhoneNumberFormatter';
 import moment from 'moment-timezone';
 import {useMemo, useState} from 'react';
-import { formatUSPhoneNumber } from '@/utils/PhoneNumberFormatter';
 
 export const columns = [
   {
@@ -57,7 +57,7 @@ export const columns = [
     accessorKey: 'phoneNumber',
     header: <div className="pl-4 text-left">Phone Number</div>,
     cell: ({row}) => (
-      <div className="pl-4 text-left">
+      <div className="min-w-max pl-4 text-left">
         {formatUSPhoneNumber(row.getValue('phoneNumber'))}
       </div>
     ),
@@ -65,14 +65,21 @@ export const columns = [
   {
     accessorKey: 'birthDate',
     header: 'Birth Date',
-    cell: ({row}) => moment(row.getValue('birthDate')).format('MM-DD-YYYY'),
+    cell: ({row}) => (
+      <div className="min-w-max pl-4 text-left">
+        {moment(row.getValue('birthDate')).format('MM-DD-YYYY')}
+      </div>
+    ),
   },
   {
     accessorKey: 'createdAt',
     header: 'Created at',
     // header: 'Created date',
-    cell: ({row}) =>
-      moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A'),
+    cell: ({row}) => (
+      <p className="min-w-max">
+        {moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A')}
+      </p>
+    ),
   },
   {
     id: 'actions',
@@ -169,37 +176,41 @@ const CustomerPage = () => {
     <div className="w-full">
       <h3 className="text-2xl font-semibold">Customer</h3>
 
-      <div className="flex items-center gap-4 py-4">
+      <div className="flex flex-col items-center gap-4 py-4 md:flex-row">
         <Input
           placeholder="Search by phone number..."
           value={keyword}
           onChange={e => setKeyword(e.target.value)}
-          className="flex-1"
+          className="flex-1 py-2"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter(column => column.getCanHide())
-              .map(column => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={value => column.toggleVisibility(!!value)}>
-                    {column.columnDef.header}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <AddCustomerDialog />
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                Columns <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter(column => column.getCanHide())
+                .map(column => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={value =>
+                        column.toggleVisibility(!!value)
+                      }>
+                      {column.columnDef.header}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <AddCustomerDialog />
+        </div>
       </div>
       <div className="grid grid-cols-1 rounded-md border">
         <Table
@@ -251,8 +262,8 @@ const CustomerPage = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="text-muted-foreground flex items-center gap-2 text-sm">
+      <div className="flex flex-col items-center justify-between gap-4 py-4 md:flex-row">
+        <div className="text-muted-foreground flex items-center gap-1 text-sm md:gap-2">
           <p className="min-w-max">Page</p>
           <Select
             value={pageIndex}

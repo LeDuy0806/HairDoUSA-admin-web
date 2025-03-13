@@ -6,8 +6,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import {Input} from '@/components/ui/input';
+import {cn} from '@/lib/utils';
 
 const FormPhoneField = ({
   form,
@@ -21,12 +21,12 @@ const FormPhoneField = ({
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({field}) => (
         <FormItem className="gap-1">
           <div className="grid grid-cols-5 items-center gap-4">
             <FormLabel className="col-span-2">{label}</FormLabel>
-            <div className="col-span-3 relative">
-              <span className="absolute pr-2 left-2 top-1/2 -translate-y-1/2 text-muted-foreground border-r-2 border-muted-foreground">
+            <div className="relative col-span-3">
+              <span className="text-muted-foreground border-muted-foreground absolute top-1/2 left-2 -translate-y-1/2 border-r-2 pr-2">
                 +1
               </span>
               <FormControl>

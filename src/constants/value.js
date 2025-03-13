@@ -13,3 +13,20 @@ export const APPOINTMENT_STATUS = {
   IN_SERVICE: 'IN_SERVICE',
   COMPLETED: 'COMPLETED',
 };
+
+export const COUPON_ACTIVE_STATUS = {
+  ACTIVE: true,
+  INACTIVE: false,
+};
+
+export const COUPON_STATUS = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  OUT_OF_USAGE: 'OUT_OF_USAGE',
+  EXPIRED: 'EXPRIED',
+};
+
+export const APPLIED_COUPON_STATUS = {
+  YES: 'YES',
+  NO: 'NO',
+};

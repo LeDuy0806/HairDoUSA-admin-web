@@ -51,8 +51,11 @@ export const columns = [
   {
     accessorKey: 'createdAt',
     header: 'Created at',
-    cell: ({row}) =>
-      moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A'),
+    cell: ({row}) => (
+      <p className="min-w-max">
+        {moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A')}
+      </p>
+    ),
   },
   {
     id: 'actions',
@@ -149,37 +152,41 @@ const SettingsPage = () => {
     <div className="w-full">
       <h3 className="text-2xl font-semibold">Settings</h3>
 
-      <div className="flex items-center gap-4 py-4">
+      <div className="flex flex-col items-center gap-4 py-4 md:flex-row">
         <Input
           placeholder="Search by email..."
           value={keyword}
           onChange={e => setKeyword(e.target.value)}
-          className="flex-1"
+          className="flex-1 py-2"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter(column => column.getCanHide())
-              .map(column => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={value => column.toggleVisibility(!!value)}>
-                    {column.columnDef.header}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <AddAdminDialog />
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                Columns <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter(column => column.getCanHide())
+                .map(column => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={value =>
+                        column.toggleVisibility(!!value)
+                      }>
+                      {column.columnDef.header}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <AddAdminDialog />
+        </div>
       </div>
       <div className="grid grid-cols-1 rounded-md border">
         <Table
@@ -231,8 +238,8 @@ const SettingsPage = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="text-muted-foreground flex items-center gap-2 text-sm">
+      <div className="flex flex-col items-center justify-between gap-4 py-4 md:flex-row">
+        <div className="text-muted-foreground flex items-center gap-1 text-sm md:gap-2">
           <p className="min-w-max">Page</p>
           <Select
             value={pageIndex}

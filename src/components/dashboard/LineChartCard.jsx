@@ -40,12 +40,12 @@ const BarChartCard = ({
     <div
       {...props}
       className="border-border flex flex-col gap-1 rounded-md border p-5">
-      <div className="flex justify-between">
+      <div className="flex flex-wrap justify-between gap-4">
         <div className="flex flex-col gap-1">
           <p className="text-base font-semibold">{title}</p>
           <RealtimeTimeDisplay />
         </div>
-        <div className="flex flex-col items-end gap-1">
+        <div className="flex flex-col items-start gap-1 md:items-end">
           <div className="flex space-x-2">
             <Checkbox
               checked={secondaryVisible}
@@ -61,7 +61,7 @@ const BarChartCard = ({
               Display Yesterday
             </label>
           </div>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-start md:items-end">
             <p className="text-muted-foreground text-sm font-medium">
               Today peak: {todayPeak?.hour}h ({todayPeak?.total} appointments)
             </p>

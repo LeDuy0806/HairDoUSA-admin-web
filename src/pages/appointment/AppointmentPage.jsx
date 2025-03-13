@@ -1,6 +1,7 @@
 import {
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import {ChevronDown, MoreHorizontal} from 'lucide-react';
@@ -34,17 +35,21 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {ROUTE} from '@/constants/route';
-import {APPOINTMENT_STATUS} from '@/constants/value';
+import {
+  APPLIED_COUPON_STATUS,
+  APPOINTMENT_STATUS,
+  PAYMENT_STATUS,
+} from '@/constants/value';
 import useDebounce from '@/hooks/use-debounce';
 import {cn} from '@/lib/utils';
 import {
   useGetAllAppointmentsQuery,
   useUpdateAppointmentMutation,
 } from '@/services/appointment';
+import {formatUSPhoneNumber} from '@/utils/PhoneNumberFormatter';
 import moment from 'moment-timezone';
 import {lazy, Suspense, useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
-import { formatUSPhoneNumber } from '@/utils/PhoneNumberFormatter';
 
 const ProcessAppointmentPaymentDialog = lazy(
   () => import('@/components/dialog/ProcessAppointmentPaymentDialog'),
@@ -57,8 +62,8 @@ export const columns = [
     cell: ({row}) => {
       const customer = row.getValue('customer');
       return (
-        <div className="pl-4 text-left">
-          {`${customer?.firstName} ${customer?.lastName} (${formatUSPhoneNumber  (customer?.phoneNumber)})`}
+        <div className="min-w-max pl-4 text-left">
+          {`${customer?.firstName} ${customer?.lastName} (${formatUSPhoneNumber(customer?.phoneNumber)})`}
         </div>
       );
     },
@@ -70,7 +75,35 @@ export const columns = [
   },
   {
     accessorKey: 'coupon',
-    header: 'Applied coupon',
+    header: row => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Applied coupon</span>
+              <ChevronDown />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <div className="flex flex-col gap-2">
+              <DropdownMenuCheckboxItem
+                checked={row.column.getFilterValue() === undefined}
+                onCheckedChange={() => row.column.setFilterValue('')}>
+                All
+              </DropdownMenuCheckboxItem>
+              {Object.values(APPLIED_COUPON_STATUS).map(st => (
+                <DropdownMenuCheckboxItem
+                  key={st}
+                  checked={row.column.getFilterValue() === st}
+                  onCheckedChange={() => row.column.setFilterValue(st)}>
+                  {st.replace(/_/g, ' ')}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
     cell: ({row}) => {
       const coupon = row.getValue('coupon');
 
@@ -80,11 +113,43 @@ export const columns = [
   {
     accessorKey: 'date',
     header: 'Date',
-    cell: ({row}) => moment(row.getValue('date')).format('MM-DD-YYYY hh:mm A'),
+    cell: ({row}) => (
+      <p className="min-w-max">
+        {moment(row.getValue('date')).format('MM-DD-YYYY hh:mm A')}
+      </p>
+    ),
   },
   {
     accessorKey: 'status',
-    header: 'Service status',
+    header: row => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Service status</span>
+              <ChevronDown />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <div className="flex flex-col gap-2">
+              <DropdownMenuCheckboxItem
+                checked={row.column.getFilterValue() === undefined}
+                onCheckedChange={() => row.column.setFilterValue('')}>
+                All
+              </DropdownMenuCheckboxItem>
+              {Object.values(APPOINTMENT_STATUS).map(st => (
+                <DropdownMenuCheckboxItem
+                  key={st}
+                  checked={row.column.getFilterValue() === st}
+                  onCheckedChange={() => row.column.setFilterValue(st)}>
+                  {st.replace(/_/g, ' ')}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
     cell: ({row}) => {
       const status = row.getValue('status');
 
@@ -155,7 +220,35 @@ export const columns = [
   },
   {
     accessorKey: 'paymentStatus',
-    header: 'Payment status',
+    header: row => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Payment status</span>
+              <ChevronDown />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <div className="flex flex-col gap-2">
+              <DropdownMenuCheckboxItem
+                checked={row.column.getFilterValue() === undefined}
+                onCheckedChange={() => row.column.setFilterValue('')}>
+                All
+              </DropdownMenuCheckboxItem>
+              {Object.values(PAYMENT_STATUS).map(st => (
+                <DropdownMenuCheckboxItem
+                  key={st}
+                  checked={row.column.getFilterValue() === st}
+                  onCheckedChange={() => row.column.setFilterValue(st)}>
+                  {st.replace(/_/g, ' ')}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
     cell: ({row}) => {
       const status = row.getValue('paymentStatus');
 
@@ -174,8 +267,11 @@ export const columns = [
   {
     accessorKey: 'createdAt',
     header: 'Created at',
-    cell: ({row}) =>
-      moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A'),
+    cell: ({row}) => (
+      <p className="min-w-max">
+        {moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A')}
+      </p>
+    ),
   },
   {
     id: 'actions',
@@ -236,6 +332,8 @@ const AppointmentPage = () => {
     pageSize: 10,
   });
 
+  const [columnFilters, setColumnFilters] = useState([]);
+
   const [keyword, setKeyword] = useState('');
 
   const debouncedKeyword = useDebounce(keyword);
@@ -248,6 +346,8 @@ const AppointmentPage = () => {
     [pageIndex, pageSize],
   );
 
+  console.log('columnFilters', columnFilters);
+
   const query = useMemo(() => {
     const q = {
       page: pageIndex + 1,
@@ -259,8 +359,27 @@ const AppointmentPage = () => {
       q.phoneNumber = debouncedKeyword;
     }
 
+    columnFilters.forEach(filter => {
+      const {id, value} = filter;
+      if (id !== 'coupon') {
+        q[id] = value;
+      } else {
+        console.log('value', id, value);
+        switch (value) {
+          case APPLIED_COUPON_STATUS.NO:
+            q.coupon = 'null';
+            break;
+          case APPLIED_COUPON_STATUS.YES:
+            q['coupon[ne]'] = 'null';
+            break;
+          default:
+            break;
+        }
+      }
+    });
+
     return q;
-  }, [pageIndex, pageSize, debouncedKeyword]);
+  }, [pageIndex, pageSize, debouncedKeyword, columnFilters]);
 
   const appointmentQuery = useGetAllAppointmentsQuery(query);
   const appointments = useMemo(
@@ -284,53 +403,62 @@ const AppointmentPage = () => {
     manualPagination: true,
     pageCount: totalPages,
     onPaginationChange: setPagination,
+    manualFiltering: true,
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnFiltersChange: setColumnFilters,
     state: {
       columnVisibility,
       pagination,
+      columnFilters,
     },
   });
+
+  // get filtered data
+  console.log(columnFilters);
 
   return (
     <>
       <div className="w-full">
         <h3 className="text-2xl font-semibold">Appointment</h3>
 
-        <div className="flex items-center gap-4 py-4">
+        <div className="flex flex-col items-center gap-4 py-4 md:flex-row">
           <Input
             placeholder="Search by phone number..."
-            className="flex-1"
+            className="flex-1 py-2"
             value={keyword}
             onChange={e => setKeyword(e.target.value)}
           />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                Columns <ChevronDown />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter(column => column.getCanHide())
-                .map(column => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={value =>
-                        column.toggleVisibility(!!value)
-                      }>
-                      {column.columnDef.header}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <AddAppointmentDialog
-            defaultOpen={action === 'new' && !!appointmentPhoneNumber}
-            phoneNumber={appointmentPhoneNumber}
-          />
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  Columns <ChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter(column => column.getCanHide())
+                  .map(column => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={value =>
+                          column.toggleVisibility(!!value)
+                        }>
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AddAppointmentDialog
+              defaultOpen={action === 'new' && !!appointmentPhoneNumber}
+              phoneNumber={appointmentPhoneNumber}
+            />
+          </div>
         </div>
         <div className="grid grid-cols-1 rounded-md border">
           <Table
@@ -384,8 +512,8 @@ const AppointmentPage = () => {
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-between space-x-2 py-4">
-          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+        <div className="flex flex-col items-center justify-between gap-4 py-4 md:flex-row">
+          <div className="text-muted-foreground flex items-center gap-1 text-sm md:gap-2">
             <p className="min-w-max">Page</p>
             <Select
               value={pageIndex}

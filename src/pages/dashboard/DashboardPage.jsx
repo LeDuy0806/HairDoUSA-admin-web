@@ -147,9 +147,9 @@ const DashboardPage = () => {
   );
 
   return (
-    <div className="h-full w-full">
+    <div className="w-full">
       <h3 className="text-2xl font-semibold">Dashboard</h3>
-      <div className="mt-5">
+      <div className="mt-5 grid grid-cols-1">
         <LineChartCard
           title="Appointments per hour"
           chartData={lineChartData}
@@ -167,7 +167,7 @@ const DashboardPage = () => {
             <p className="text-lg font-semibold">Week</p>
           </div>
         </CollapsibleTrigger>
-        <CollapsibleContent className="grid grid-cols-3 gap-5">
+        <CollapsibleContent className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-5">
           <BarChartCard
             title="New Customers"
             chartData={
@@ -210,7 +210,7 @@ const DashboardPage = () => {
             <p className="text-lg font-semibold">Month</p>
           </div>
         </CollapsibleTrigger>
-        <CollapsibleContent className="grid grid-cols-3 gap-5">
+        <CollapsibleContent className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-5">
           <BarChartCard
             title="New Customers"
             chartData={

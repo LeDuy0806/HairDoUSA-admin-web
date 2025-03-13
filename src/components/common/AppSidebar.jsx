@@ -8,10 +8,10 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import {sidebarData} from '@/constants/sidebar-data';
+import {useAuthContext} from '@/context/AuthContext';
 import {ChevronLeft} from 'lucide-react';
 import {useCallback} from 'react';
 import {Link, useLocation} from 'react-router';
-import { useAuthContext } from '@/context/AuthContext';
 
 const AppSidebar = () => {
   const {toggleSidebar} = useSidebar();

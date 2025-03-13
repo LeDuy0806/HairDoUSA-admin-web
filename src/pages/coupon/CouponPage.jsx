@@ -1,6 +1,7 @@
 import {
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import {ChevronDown, MoreHorizontal} from 'lucide-react';
@@ -8,7 +9,6 @@ import {ChevronDown, MoreHorizontal} from 'lucide-react';
 import AddCouponDialog from '@/components/dialog/AddCouponDialog';
 import ConfirmDeleteCouponDialog from '@/components/dialog/ConfirmDeleteCouponDialog';
 import {Button} from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {Separator} from '@/components/ui/separator';
+import {Switch} from '@/components/ui/switch';
 import {
   Table,
   TableBody,
@@ -33,6 +34,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  COUPON_ACTIVE_STATUS,
+  COUPON_STATUS,
+  COUPON_TYPE,
+} from '@/constants/value';
 import useDebounce from '@/hooks/use-debounce';
 import {
   useGetAllCouponsQuery,
@@ -47,7 +53,7 @@ export const columns = [
     accessorKey: 'name',
     header: <div className="pl-4 text-left">Name</div>,
     cell: ({row}) => (
-      <div className="pl-4 text-left">{row.getValue('name')}</div>
+      <div className="min-w-max pl-4 text-left">{row.getValue('name')}</div>
     ),
   },
   {
@@ -66,19 +72,55 @@ export const columns = [
     },
   },
   {
-    accessorKey: 'couponType',
-    header: 'Coupon type',
-    cell: ({row}) => row.getValue('couponType'),
+    accessorKey: 'discountType',
+    header: row => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Coupon type</span>
+              <ChevronDown />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <div className="flex flex-col gap-2">
+              <DropdownMenuCheckboxItem
+                checked={row.column.getFilterValue() === undefined}
+                onCheckedChange={() => row.column.setFilterValue('')}>
+                All
+              </DropdownMenuCheckboxItem>
+              {Object.values(COUPON_TYPE).map(st => (
+                <DropdownMenuCheckboxItem
+                  key={st}
+                  checked={row.column.getFilterValue() === st}
+                  onCheckedChange={() => row.column.setFilterValue(st)}>
+                  {st.replace(/_/g, ' ')}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+    cell: ({row}) => row.getValue('discountType'),
   },
   {
     accessorKey: 'validFrom',
     header: 'Valid from',
-    cell: ({row}) => moment(row.getValue('validFrom')).format('MM-DD-YYYY'),
+    cell: ({row}) => (
+      <p className="min-w-max">
+        {moment(row.getValue('validFrom')).format('MM-DD-YYYY')}
+      </p>
+    ),
   },
   {
     accessorKey: 'validUntil',
     header: 'Valid to',
-    cell: ({row}) => moment(row.getValue('validUntil')).format('MM-DD-YYYY'),
+    cell: ({row}) => (
+      <p className="min-w-max">
+        {moment(row.getValue('validUntil')).format('MM-DD-YYYY')}
+      </p>
+    ),
   },
   {
     accessorKey: 'usageLimit',
@@ -92,7 +134,35 @@ export const columns = [
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: row => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Status</span>
+              <ChevronDown />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <div className="flex flex-col gap-2">
+              <DropdownMenuCheckboxItem
+                checked={row.column.getFilterValue() === undefined}
+                onCheckedChange={() => row.column.setFilterValue('')}>
+                All
+              </DropdownMenuCheckboxItem>
+              {Object.values(COUPON_STATUS).map(st => (
+                <DropdownMenuCheckboxItem
+                  key={st}
+                  checked={row.column.getFilterValue() === st}
+                  onCheckedChange={() => row.column.setFilterValue(st)}>
+                  {st.replace(/_/g, ' ')}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
     cell: ({row}) => {
       if (
         !moment
@@ -115,7 +185,39 @@ export const columns = [
   },
   {
     accessorKey: 'isActive',
-    header: 'Active',
+    header: row => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Active status</span>
+              <ChevronDown />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <div className="flex flex-col gap-2">
+              <DropdownMenuCheckboxItem
+                checked={row.column.getFilterValue() === undefined}
+                onCheckedChange={() => row.column.setFilterValue('')}>
+                All
+              </DropdownMenuCheckboxItem>
+              {Object.keys(COUPON_ACTIVE_STATUS).map(st => (
+                <DropdownMenuCheckboxItem
+                  key={st}
+                  checked={
+                    row.column.getFilterValue() === COUPON_ACTIVE_STATUS[st]
+                  }
+                  onCheckedChange={() =>
+                    row.column.setFilterValue(COUPON_ACTIVE_STATUS[st])
+                  }>
+                  {st.replace(/_/g, ' ')}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
     cell: ({row}) => {
       const status = row.getValue('isActive');
       const coupon = row.original;
@@ -155,8 +257,11 @@ export const columns = [
   {
     accessorKey: 'createdAt',
     header: 'Created at',
-    cell: ({row}) =>
-      moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A'),
+    cell: ({row}) => (
+      <p className="min-w-max">
+        {moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A')}
+      </p>
+    ),
   },
   {
     id: 'actions',
@@ -196,6 +301,8 @@ const CouponPage = () => {
     pageSize: 10,
   });
 
+  const [columnFilters, setColumnFilters] = useState([]);
+
   const [keyword, setKeyword] = useState('');
   const debouncedKeyword = useDebounce(keyword);
 
@@ -217,8 +324,32 @@ const CouponPage = () => {
       q.code = debouncedKeyword;
     }
 
+    columnFilters.forEach(filter => {
+      const {id, value} = filter;
+      if (id !== 'status') {
+        q[id] = value;
+      } else {
+        switch (value) {
+          case COUPON_STATUS.ACTIVE:
+            q.isActive = true;
+            break;
+          case COUPON_STATUS.INACTIVE:
+            q.isActive = false;
+            break;
+          case COUPON_STATUS.OUT_OF_USAGE:
+            q['$expr'] = JSON.stringify({$eq: ['$usedCount', '$usageLimit']});
+            break;
+          case COUPON_STATUS.EXPIRED:
+            q['validUntil[lt]'] = moment(Date.now()).utc().format('YYYY-MM-DD');
+            break;
+          default:
+            break;
+        }
+      }
+    });
+
     return q;
-  }, [pageIndex, pageSize, debouncedKeyword]);
+  }, [pageIndex, pageSize, debouncedKeyword, columnFilters]);
 
   const couponQuery = useGetAllCouponsQuery(query);
   const coupons = useMemo(
@@ -244,9 +375,13 @@ const CouponPage = () => {
     manualPagination: true,
     pageCount: totalPages,
     onPaginationChange: setPagination,
+    manualFiltering: true,
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       columnVisibility,
       pagination,
+      columnFilters,
     },
   });
 
@@ -255,39 +390,41 @@ const CouponPage = () => {
       <div className="w-full">
         <h3 className="text-2xl font-semibold">Coupon</h3>
 
-        <div className="flex items-center gap-4 py-4">
+        <div className="flex flex-col items-center gap-4 py-4 md:flex-row">
           <Input
             placeholder="Search by code"
-            className="flex-1"
+            className="flex-1 py-2"
             value={keyword}
             onChange={e => setKeyword(e.target.value)}
           />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                Columns <ChevronDown />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter(column => column.getCanHide())
-                .map(column => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={value =>
-                        column.toggleVisibility(!!value)
-                      }>
-                      {column.columnDef.header}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <AddCouponDialog />
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  Columns <ChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter(column => column.getCanHide())
+                  .map(column => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={value =>
+                          column.toggleVisibility(!!value)
+                        }>
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AddCouponDialog />
+          </div>
         </div>
         <div className="grid grid-cols-1 rounded-md border">
           <Table
@@ -318,7 +455,9 @@ const CouponPage = () => {
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map(cell => (
-                      <TableCell key={cell.id} className="min-w-max text-center">
+                      <TableCell
+                        key={cell.id}
+                        className="min-w-max text-center">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
@@ -339,7 +478,7 @@ const CouponPage = () => {
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="flex flex-col items-center justify-between gap-4 py-4 md:flex-row">
           <div className="text-muted-foreground flex items-center gap-2 text-sm">
             <p className="min-w-max">Page</p>
             <Select

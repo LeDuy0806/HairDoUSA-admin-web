@@ -24,9 +24,9 @@ const MainLayout = () => {
     <SidebarProvider>
       <main className="flex h-screen w-full overflow-x-hidden">
         <AppSidebar />
-        <div className="flex flex-1 flex-col">
+        <div className="relative flex flex-1 flex-col">
           <AppHeaderBar />
-          <div className="px-10 pb-10">
+          <div className="flex-1 p-4 md:p-10">
             <Outlet />
           </div>
         </div>

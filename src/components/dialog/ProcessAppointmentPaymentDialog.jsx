@@ -12,7 +12,7 @@ import {
   useUpdateAppointmentMutation,
 } from '@/services/appointment';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {AlertCircle, Loader, CircleX} from 'lucide-react';
+import {AlertCircle, CircleX, Loader} from 'lucide-react';
 import {useEffect, useMemo, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {useLocation, useNavigate} from 'react-router';

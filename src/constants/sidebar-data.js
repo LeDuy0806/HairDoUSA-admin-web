@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import {ROUTE} from './route';
 
-export const sidebarData = (isSuperAdmin) => [
+export const sidebarData = isSuperAdmin => [
   {
     title: 'Dashboard',
     url: ROUTE.DASHBOARD,
