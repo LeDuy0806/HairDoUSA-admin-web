@@ -346,8 +346,6 @@ const AppointmentPage = () => {
     [pageIndex, pageSize],
   );
 
-  console.log('columnFilters', columnFilters);
-
   const query = useMemo(() => {
     const q = {
       page: pageIndex + 1,
@@ -364,7 +362,6 @@ const AppointmentPage = () => {
       if (id !== 'coupon') {
         q[id] = value;
       } else {
-        console.log('value', id, value);
         switch (value) {
           case APPLIED_COUPON_STATUS.NO:
             q.coupon = 'null';
@@ -412,9 +409,6 @@ const AppointmentPage = () => {
       columnFilters,
     },
   });
-
-  // get filtered data
-  console.log(columnFilters);
 
   return (
     <>

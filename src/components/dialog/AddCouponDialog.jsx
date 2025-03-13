@@ -198,15 +198,6 @@ const AddCouponDialog = ({isEdit, data}) => {
         ? generatedCodeFromName
         : values.code;
 
-    console.log('Valid from: ', values.validFrom);
-    console.log('Valid until: ', values.validUntil);
-
-    const test = moment(values.validFrom).toISOString(true);
-    const test2 = moment(values.validUntil).toISOString(true);
-
-    console.log('Valid from: ', test);
-    console.log('Valid until: ', test2);
-
     handler.mutate(
       {
         ...values,

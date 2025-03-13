@@ -115,7 +115,6 @@ const EditCouponDialog = () => {
     setLoading(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('New coupon added:', values);
       form.reset();
       // setOpen(false);
     } catch (err) {

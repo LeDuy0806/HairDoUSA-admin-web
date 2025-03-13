@@ -70,8 +70,6 @@ const ForgotPassword = () => {
     );
   };
 
-  console.log(form.formState.errors);
-
   return (
     <div className="w-full max-w-md">
       <CardWrapper

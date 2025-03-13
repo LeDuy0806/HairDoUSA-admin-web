@@ -42,7 +42,6 @@ const TwoFactorAuthPage = () => {
       },
       {
         onSuccess: async res => {
-          console.log(res);
           if (res.success) {
             toast.success(res.message);
             location.href = ROUTE.DASHBOARD;
