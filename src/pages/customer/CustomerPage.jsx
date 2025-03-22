@@ -86,13 +86,21 @@ export const columns = [
       <div className="text-left">{row.getValue('city') || '-'}</div>
     ),
   },
-
   {
     accessorKey: 'address',
     header: 'Address',
     cell: ({row}) => (
       <div className="line-clamp-1 text-left">
         {row.getValue('address') || '-'}
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'zipCode',
+    header: 'Zip Code',
+    cell: ({row}) => (
+      <div className="line-clamp-1 text-left">
+        {row.getValue('zipCode') || '-'}
       </div>
     ),
   },
@@ -185,6 +193,7 @@ const CustomerPage = () => {
   const [columnVisibility, setColumnVisibility] = useState({
     createdAt: false,
     city: false,
+    zipCode: false,
   });
 
   const table = useReactTable({

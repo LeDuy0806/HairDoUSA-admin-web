@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
 import {cn} from '@/lib/utils';
+import {useEffect} from 'react';
 
 const FormPhoneField = ({
   form,
@@ -18,6 +19,29 @@ const FormPhoneField = ({
   required = false,
   ...props
 }) => {
+  const phoneValue = form.watch(name);
+  useEffect(() => {
+    if (phoneValue) {
+      // Remove all non-digit characters
+      const digits = phoneValue.replace(/\D/g, '');
+
+      // Format with spaces (3-3-4 format)
+      let formattedNumber = '';
+      if (digits.length <= 3) {
+        formattedNumber = digits;
+      } else if (digits.length <= 6) {
+        formattedNumber = `${digits.slice(0, 3)} ${digits.slice(3)}`;
+      } else {
+        formattedNumber = `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 10)}`;
+      }
+
+      // Only update if the formatted value is different
+      if (formattedNumber !== phoneValue) {
+        form.setValue(name, formattedNumber);
+      }
+    }
+  }, [phoneValue, name, form]);
+
   return (
     <FormField
       control={form.control}

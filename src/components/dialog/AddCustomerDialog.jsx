@@ -46,6 +46,7 @@ const formSchema = z.object({
   state: z.string().optional(),
   city: z.string().optional(),
   address: z.string().optional(),
+  zipCode: z.string().optional(),
 });
 
 const AddCustomerDialog = ({isEdit, data}) => {
@@ -59,6 +60,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
       state: '',
       city: '',
       address: '',
+      zipCode: '',
     },
   });
 
@@ -104,14 +106,14 @@ const AddCustomerDialog = ({isEdit, data}) => {
     }
   }, [data]);
 
-  const {phoneNumber, birthDate, firstName, lastName, state, city, address} =
+  const {phoneNumber, birthDate, firstName, lastName, state, city, address, zipCode} =
     form.watch();
 
   useEffect(() => {
     if (commonError) {
       setCommonError(null);
     }
-  }, [phoneNumber, birthDate, firstName, lastName, state, city, address]);
+  }, [phoneNumber, birthDate, firstName, lastName, state, city, address, zipCode]);
 
   const navigate = useNavigate();
   const [commonError, setCommonError] = useState(null);
@@ -206,29 +208,28 @@ const AddCustomerDialog = ({isEdit, data}) => {
           )}
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             <FormNormalField
               form={form}
               name="firstName"
-              label="Customer First Name"
-              placeholder="Enter customer first name"
+              label="First Name"
+              placeholder="Enter first name"
               required
             />
 
             <FormNormalField
               form={form}
               name="lastName"
-              label="Customer Last Name"
-              placeholder="Enter customer last name"
+              label="Last Name"
+              placeholder="Enter last name"
               required
             />
 
             <FormPhoneField
               form={form}
               name="phoneNumber"
-              label="Phone number"
+              label="Phone Number"
               placeholder="Enter phone number"
-              type="tel"
               required
             />
 
@@ -284,6 +285,14 @@ const AddCustomerDialog = ({isEdit, data}) => {
               name="address"
               label="Address"
               placeholder="Enter address"
+            />
+
+            <FormNormalField
+              form={form}
+              name="zipCode"
+              label="Zip Code"
+              placeholder="Enter zip code"
+              type="number"
             />
 
             {commonError && (

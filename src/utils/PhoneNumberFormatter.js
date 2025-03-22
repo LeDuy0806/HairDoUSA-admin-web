@@ -1,3 +1,4 @@
+//Example: formatUSPhoneNumber('1234567890') => '+1 (123) 456-7890'
 export const formatUSPhoneNumber = phoneNumber => {
   // Remove all non-digit characters
   let digits = phoneNumber.replace(/\D/g, '');
