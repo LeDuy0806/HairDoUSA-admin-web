@@ -15,6 +15,7 @@ const FormPhoneField = ({
   label,
   placeholder,
   disabled,
+  required = false,
   ...props
 }) => {
   return (
@@ -24,7 +25,9 @@ const FormPhoneField = ({
       render={({field}) => (
         <FormItem className="gap-1">
           <div className="grid grid-cols-5 items-center gap-4">
-            <FormLabel className="col-span-2">{label}</FormLabel>
+            <FormLabel className="col-span-2">
+              {label} {required ? <span className="text-red-500">*</span> : ''}
+            </FormLabel>
             <div className="relative col-span-3">
               <span className="text-muted-foreground border-muted-foreground absolute top-1/2 left-2 -translate-y-1/2 border-r-2 pr-2">
                 +1

@@ -140,6 +140,7 @@ const AddAdminDialog = ({isEdit, data}) => {
               name="name"
               label="Admin Name"
               placeholder="Enter admin name"
+              required
             />
 
             <FormNormalField
@@ -147,6 +148,7 @@ const AddAdminDialog = ({isEdit, data}) => {
               name="email"
               label="Email"
               placeholder="Enter email"
+              required
             />
 
             <FormField

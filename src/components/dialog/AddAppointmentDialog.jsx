@@ -22,6 +22,7 @@ import useDebounce from '@/hooks/use-debounce';
 import {cn} from '@/lib/utils';
 import {useCreateAppointmentMutation} from '@/services/appointment';
 import {useGetAllCustomersQuery} from '@/services/customer';
+import {formatUSPhoneNumber} from '@/utils/PhoneNumberFormatter';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {AlertCircle, Loader, PlusIcon} from 'lucide-react';
 import {useEffect, useMemo, useState} from 'react';
@@ -105,7 +106,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
 
   const selectedCustomerIns = useMemo(
     () => foundCustomers.find(c => c.phoneNumber === selectedCustomer),
-    [foundCustomers, selectedCustomer],
+    [selectedCustomer],
   );
 
   const onConfirm = async (values, processPayment = false) => {
@@ -170,7 +171,9 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
               render={() => (
                 <FormItem className="gap-1">
                   <div className="grid grid-cols-5 items-center gap-4">
-                    <FormLabel className="col-span-1.5">Customer</FormLabel>
+                    <FormLabel className="col-span-1.5">
+                      Customer <span className="text-red-500">*</span>
+                    </FormLabel>
                     <Popover modal className="col-span-4">
                       <PopoverTrigger asChild>
                         <Button
@@ -181,8 +184,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                             'col-span-4 w-full justify-start',
                           )}>
                           {selectedCustomer
-                            ? // ? `${selectedCustomerIns?.lastName} - ${selectedCustomer}`
-                              `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName} (${selectedCustomer})`
+                            ? `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName} (${formatUSPhoneNumber(selectedCustomer)})`
                             : 'Select Customer'}
                         </Button>
                       </PopoverTrigger>
@@ -207,7 +209,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                                 <p className="line-clamp-1">
                                   {/* {customer.lastName} - {customer.phoneNumber} */}
                                   {customer.firstName} {customer.lastName} (
-                                  {customer.phoneNumber})
+                                  {formatUSPhoneNumber(customer.phoneNumber)})
                                 </p>
                               </Button>
                             ))
@@ -234,7 +236,9 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
               render={({field}) => (
                 <FormItem className="gap-1">
                   <div className="grid grid-cols-5 items-center gap-4">
-                    <FormLabel className="col-span-1">Subtotal</FormLabel>
+                    <FormLabel className="col-span-1">
+                      Subtotal <span className="text-red-500">*</span>
+                    </FormLabel>
                     <Input
                       {...field}
                       className={cn(

@@ -14,6 +14,7 @@ const FormNormalField = ({
   label,
   placeholder,
   disabled,
+  required = false,
   ...props
 }) => {
   return (
@@ -23,7 +24,9 @@ const FormNormalField = ({
       render={({field}) => (
         <FormItem className="gap-1">
           <div className="grid grid-cols-5 items-center gap-4">
-            <FormLabel className="col-span-2">{label}</FormLabel>
+            <FormLabel className="col-span-2">
+              {label} {required ? <span className="text-red-500">*</span> : ''}
+            </FormLabel>
             <FormControl className="col-span-3">
               <Input
                 {...field}

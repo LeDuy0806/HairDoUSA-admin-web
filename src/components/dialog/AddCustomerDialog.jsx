@@ -19,10 +19,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
+import FormSearchField from '@/components/common/FormSearchField';
 import FormPhoneField from '@/components/coupon/FormPhoneField';
 import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
 import {Input} from '@/components/ui/input';
 import {ROUTE} from '@/constants/route';
+import {citiesByState} from '@/constants/us-cities-by-state';
 import {
   useCreateCustomerMutation,
   useUpdateCustomerMutation,
@@ -41,11 +43,12 @@ const formSchema = z.object({
   lastName: z.string().nonempty('Please enter last name'),
   phoneNumber: z.string().nonempty('Please enter phone number'),
   birthDate: z.string().optional().nullable(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  address: z.string().optional(),
 });
 
 const AddCustomerDialog = ({isEdit, data}) => {
-  const [open, setOpen] = useState(false);
-
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -53,8 +56,31 @@ const AddCustomerDialog = ({isEdit, data}) => {
       lastName: '',
       phoneNumber: '',
       birthDate: '2000-01-01',
+      state: '',
+      city: '',
+      address: '',
     },
   });
+
+  const states = Object.keys(citiesByState);
+  const [open, setOpen] = useState(false);
+  const [citiesInState, setCitiesInState] = useState([]);
+
+  const selectedState = form.watch('state');
+  useEffect(() => {
+    if (selectedState) {
+      setCitiesInState(citiesByState[selectedState] || []);
+      if (!isEdit) {
+        form.setValue('city', '');
+      } else {
+        if (selectedState !== data.state) {
+          form.setValue('city', '');
+        }
+      }
+    } else {
+      setCitiesInState([]);
+    }
+  }, [selectedState]);
 
   const formatFetchedPhoneNumber = useCallback(phoneNumber => {
     let digits = phoneNumber.replace(/\D/g, '');
@@ -78,13 +104,14 @@ const AddCustomerDialog = ({isEdit, data}) => {
     }
   }, [data]);
 
-  const {phoneNumber, birthDate, firstName, lastName} = form.watch();
+  const {phoneNumber, birthDate, firstName, lastName, state, city, address} =
+    form.watch();
 
   useEffect(() => {
     if (commonError) {
       setCommonError(null);
     }
-  }, [phoneNumber, birthDate, firstName, lastName]);
+  }, [phoneNumber, birthDate, firstName, lastName, state, city, address]);
 
   const navigate = useNavigate();
   const [commonError, setCommonError] = useState(null);
@@ -185,6 +212,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
               name="firstName"
               label="Customer First Name"
               placeholder="Enter customer first name"
+              required
             />
 
             <FormNormalField
@@ -192,6 +220,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
               name="lastName"
               label="Customer Last Name"
               placeholder="Enter customer last name"
+              required
             />
 
             <FormPhoneField
@@ -200,6 +229,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
               label="Phone number"
               placeholder="Enter phone number"
               type="tel"
+              required
             />
 
             <FormField
@@ -208,7 +238,9 @@ const AddCustomerDialog = ({isEdit, data}) => {
               render={({field}) => (
                 <FormItem className="gap-1">
                   <div className="relative grid grid-cols-5 items-center gap-4">
-                    <FormLabel className="col-span-2">Date of Birth</FormLabel>
+                    <FormLabel className="col-span-2">
+                      Date of Birth <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl className="col-span-3">
                       <Input
                         {...field}
@@ -224,6 +256,34 @@ const AddCustomerDialog = ({isEdit, data}) => {
                   </div>
                 </FormItem>
               )}
+            />
+
+            <FormSearchField
+              form={form}
+              name="state"
+              label="State"
+              placeholder="Select state..."
+              searchPlaceholder="Search state..."
+              options={states}
+              emptyText="No states found."
+            />
+
+            <FormSearchField
+              form={form}
+              name="city"
+              label="City"
+              placeholder="Select city..."
+              searchPlaceholder="Search city..."
+              options={citiesInState}
+              emptyText="No cities found."
+              disabled={!selectedState}
+            />
+
+            <FormNormalField
+              form={form}
+              name="address"
+              label="Address"
+              placeholder="Enter address"
             />
 
             {commonError && (

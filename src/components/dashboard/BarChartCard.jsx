@@ -40,7 +40,7 @@ const BarChartCard = ({
       <div>
         <p className="text-2xl font-bold">
           {currentTimeSpanAmount - lastTimeSpanAmount >= 0 ? '+' : ''}
-          {currentTimeSpanAmount - lastTimeSpanAmount}
+          {differenceUnitCharacter === '$' ? difference.toFixed(2) : difference}
           {differenceUnitCharacter}
         </p>
         <p className="text-muted-foreground text-xs font-normal">
