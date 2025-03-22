@@ -63,7 +63,9 @@ export const columns = [
       const customer = row.getValue('customer');
       return (
         <div className="min-w-max pl-4 text-left">
-          {`${customer?.firstName} ${customer?.lastName} (${formatUSPhoneNumber(customer?.phoneNumber)})`}
+          {customer
+            ? `${customer?.firstName} ${customer?.lastName} (${formatUSPhoneNumber(customer?.phoneNumber)})`
+            : 'Deleted Customer'}
         </div>
       );
     },
