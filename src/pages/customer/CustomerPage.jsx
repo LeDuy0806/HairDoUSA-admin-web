@@ -72,9 +72,33 @@ export const columns = [
     ),
   },
   {
+    accessorKey: 'state',
+    header: 'State',
+    cell: ({row}) => (
+      <div className="text-left">{row.getValue('state') || '-'}</div>
+    ),
+  },
+
+  {
+    accessorKey: 'city',
+    header: 'City',
+    cell: ({row}) => (
+      <div className="text-left">{row.getValue('city') || '-'}</div>
+    ),
+  },
+
+  {
+    accessorKey: 'address',
+    header: 'Address',
+    cell: ({row}) => (
+      <div className="line-clamp-1 text-left">
+        {row.getValue('address') || '-'}
+      </div>
+    ),
+  },
+  {
     accessorKey: 'createdAt',
     header: 'Created at',
-    // header: 'Created date',
     cell: ({row}) => (
       <p className="min-w-max">
         {moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A')}
@@ -160,6 +184,7 @@ const CustomerPage = () => {
 
   const [columnVisibility, setColumnVisibility] = useState({
     createdAt: false,
+    city: false,
   });
 
   const table = useReactTable({
@@ -171,7 +196,7 @@ const CustomerPage = () => {
     pageCount: totalPages,
     onPaginationChange: setPagination,
     state: {
-      columnVisibility,
+      columnVisibility: columnVisibility,
       pagination,
     },
   });

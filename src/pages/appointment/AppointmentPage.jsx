@@ -294,7 +294,9 @@ export const columns = [
             <div className="flex flex-col gap-2">
               <Button asChild>
                 <Link to={ROUTE.APPOINTMENT.PAYMENT(appointment._id)}>
-                  View
+                  {row.getValue('paymentStatus') === 'PAID'
+                    ? 'View'
+                    : 'Checkout'}
                 </Link>
               </Button>
               <ConfirmDeleteAppointmentDialog
