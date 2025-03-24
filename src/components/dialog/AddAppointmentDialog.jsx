@@ -118,24 +118,30 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
       }
     }
 
-    createAppointmentMutation.mutate(values, {
-      onSuccess: res => {
-        if (res.success) {
-          form.reset();
-          setSelectedCustomer(null);
-          toast.success('Appointment created successfully');
-          setOpen(false);
-          if (processPayment) {
-            navigate(ROUTE.APPOINTMENT.PAYMENT(res.data._id));
+    createAppointmentMutation.mutate(
+      {
+        phoneNumber: values.phoneNumber,
+        subtotal: Number(values.subtotal),
+      },
+      {
+        onSuccess: res => {
+          if (res.success) {
+            form.reset();
+            setSelectedCustomer(null);
+            toast.success('Appointment created successfully');
+            setOpen(false);
+            if (processPayment) {
+              navigate(ROUTE.APPOINTMENT.PAYMENT(res.data._id));
+            }
+          } else {
+            setCommonError(res.message);
           }
-        } else {
-          setCommonError(res.message);
-        }
+        },
+        onError: err => {
+          setCommonError(err?.response?.data?.message ?? 'An error occurred');
+        },
       },
-      onError: err => {
-        setCommonError(err?.response?.data?.message ?? 'An error occurred');
-      },
-    });
+    );
   };
 
   const onSubmit = async values => {
@@ -218,7 +224,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                             ))
                           ) : (
                             <span className="mt-2 text-sm">
-                              No customers found
+                              No customers found.
                             </span>
                           )}
                         </ScrollArea>

@@ -14,6 +14,7 @@ export const QUERY_KEY = {
   COUPON: {
     GET_ALL: 'coupon/getAll',
     GET_DETAIL: 'coupon/getDetail',
+    GET_AVAILABLE_BY_APPOINTMENT: 'coupon/getAvailableByAppointment',
   },
   APPOINTMENT: {
     GET_ALL: 'appointment/getAll',

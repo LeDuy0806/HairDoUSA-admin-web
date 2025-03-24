@@ -44,7 +44,7 @@ import moment from 'moment-timezone';
 import {useEffect, useMemo, useState} from 'react';
 import {toast} from 'sonner';
 
-export const columns = [
+const columns = [
   {
     accessorKey: 'name',
     header: <div className="pl-4 text-left">Name</div>,

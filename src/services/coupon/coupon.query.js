@@ -21,3 +21,13 @@ export const useGetCouponDetailQuery = id => {
     },
   });
 };
+
+export const useGetAvailableCouponByAppointmentQuery = appointmentId => {
+  return useQuery({
+    queryKey: [QUERY_KEY.COUPON.GET_AVAILABLE_BY_APPOINTMENT, appointmentId],
+    queryFn: async () => {
+      const res = await couponService.getAvailableByAppointment(appointmentId);
+      return res.data;
+    },
+  });
+};

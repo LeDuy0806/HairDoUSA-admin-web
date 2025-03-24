@@ -1,3 +1,12 @@
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
 import {ROUTE} from '@/constants/route';
 import {
   APPOINTMENT_STATUS,
@@ -11,6 +20,7 @@ import {
   useRemoveCouponMutation,
   useUpdateAppointmentMutation,
 } from '@/services/appointment';
+import {useGetAvailableCouponByAppointmentQuery} from '@/services/coupon';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {AlertCircle, CircleX, Loader} from 'lucide-react';
 import {useEffect, useMemo, useState} from 'react';
@@ -31,7 +41,6 @@ import {
   DialogTitle,
 } from '../ui/dialog';
 import {Form, FormField, FormItem, FormLabel, FormMessage} from '../ui/form';
-import {Input} from '../ui/input';
 
 const formSchema = z.object({
   couponCode: z
@@ -49,14 +58,29 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
   const appointmentId = searchParams.get('appointmentId');
 
   const [open, setOpen] = useState(true);
+  const [fieldOpen, setFieldOpen] = useState(false);
   const [commonError, setCommonError] = useState(null);
   const [isChecked, setIsChecked] = useState(true);
 
   const getAppointmentDetail = useGetAppointmentDetailQuery(appointmentId);
+  const getAvailableCouponByAppointment =
+    useGetAvailableCouponByAppointmentQuery({appointmentId});
 
   const appointment = useMemo(
     () => getAppointmentDetail.data?.data,
     [getAppointmentDetail.data],
+  );
+
+  const availableCoupons = useMemo(
+    () =>
+      getAvailableCouponByAppointment.data?.data.map(coupon => {
+        return {
+          code: coupon.code,
+          discountType: coupon.discountType,
+          discountValue: coupon.discountValue,
+        };
+      }) ?? [],
+    [getAvailableCouponByAppointment.data],
   );
 
   const form = useForm({
@@ -119,7 +143,7 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
     }
   }, [coupon, appointment?.subtotal]);
 
-  const formatCouponDiscountValue = useMemo(() => {
+  const formatCouponDiscountValue = coupon => {
     switch (coupon?.discountType) {
       case COUPON_TYPE.PERCENTAGE:
         return `${coupon.discountValue}%`;
@@ -128,7 +152,7 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
       default:
         return '';
     }
-  }, [coupon]);
+  };
 
   const onRemoveCoupon = () => {
     removeCouponMutation.mutate(appointmentId, {
@@ -203,7 +227,7 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
         </DialogHeader>
         {getAppointmentDetail.isLoading ? (
           <div className="my-4 flex items-center justify-center">
-            <Loader className="size-4" />
+            <Loader className="size-4 animate-spin" />
           </div>
         ) : (
           <Form {...form}>
@@ -212,16 +236,66 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
                 <FormField
                   control={form.control}
                   name="couponCode"
-                  render={({field}) => (
+                  render={() => (
                     <FormItem className="gap-1">
                       <div className="grid grid-cols-5 items-center gap-4">
                         <FormLabel className="col-span-2">Coupon</FormLabel>
                         <div className="col-span-3 flex gap-1">
-                          <Input
-                            {...field}
-                            className="flex-1"
-                            placeholder="Enter coupon code"
-                          />
+                          <Popover
+                            modal={true}
+                            open={fieldOpen}
+                            onOpenChange={setFieldOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                aria-expanded={fieldOpen}
+                                className="w-full justify-start text-left">
+                                {form.getValues('couponCode')
+                                  ? form.getValues('couponCode')
+                                  : 'Select coupon'}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                              <Command>
+                                <CommandInput
+                                  placeholder={'Search coupon code...'}
+                                />
+                                <CommandList>
+                                  <CommandEmpty>
+                                    {'No coupon found.'}
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    {availableCoupons.map(coupon => (
+                                      <CommandItem
+                                        key={coupon.code}
+                                        value={coupon.code}
+                                        onSelect={currentValue => {
+                                          console.log(
+                                            'Selected: ',
+                                            currentValue,
+                                          );
+                                          form.setValue(
+                                            'couponCode',
+                                            currentValue ===
+                                              form.getValues('couponCode')
+                                              ? form.getValues('couponCode')
+                                              : currentValue,
+                                          );
+                                          setFieldOpen(false);
+                                        }}>
+                                        {coupon?.code} -{' '}
+                                        <span className="font-semibold text-green-600">
+                                          {formatCouponDiscountValue(
+                                            coupon,
+                                          )}{' '}
+                                        </span>
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
                           <Button
                             type="button"
                             onClick={applyCoupon}
@@ -247,7 +321,7 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
 
                 {appointment?.coupon && (
                   <>
-                    <p className="col-span-2 text-green-500">Discount</p>
+                    <p className="col-span-2 text-green-600">Discount</p>
                     <div className="col-span-3 inline-flex flex-col items-end gap-2 text-green-600">
                       <p className="text-right">-${calculatedDiscount}</p>
                       <button
@@ -255,7 +329,7 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
                         disabled={removeCouponMutation.isPending}
                         onClick={onRemoveCoupon}
                         className="bg-foreground flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-white disabled:cursor-not-allowed disabled:bg-gray-300">
-                        {coupon?.code} - {formatCouponDiscountValue}{' '}
+                        {coupon?.code} - {formatCouponDiscountValue(coupon)}{' '}
                         {removeCouponMutation.isPending ? (
                           <Loader className="inline-block size-4 animate-spin" />
                         ) : (

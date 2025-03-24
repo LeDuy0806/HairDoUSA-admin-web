@@ -181,6 +181,8 @@ const CustomerPage = () => {
   }, [pageIndex, pageSize, debouncedKeyword]);
 
   const customerQuery = useGetAllCustomersQuery(query);
+  
+
   const customers = useMemo(
     () => customerQuery.data?.data?.items ?? [],
     [customerQuery.data],
