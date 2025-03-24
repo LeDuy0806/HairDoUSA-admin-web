@@ -1,13 +1,19 @@
+import {cn} from '@/lib/utils';
 import {Eye, EyeOff} from 'lucide-react';
 import {forwardRef, useState} from 'react';
 import {Button} from './button';
 import {Input} from './input';
 
-const InputPassword = forwardRef(({...props}, ref) => {
+const InputPassword = forwardRef(({className, ...props}, ref) => {
   const [showPassword, setShowPassword] = useState(false);
   return (
     <div className="relative">
-      <Input ref={ref} type={showPassword ? 'text' : 'password'} {...props} />
+      <Input
+        ref={ref}
+        type={showPassword ? 'text' : 'password'}
+        className={cn('pr-10', className)}
+        {...props}
+      />
       <Button
         type="button"
         tabIndex="-1"

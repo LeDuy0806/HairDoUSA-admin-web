@@ -121,6 +121,8 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
     createAppointmentMutation.mutate(values, {
       onSuccess: res => {
         if (res.success) {
+          form.reset();
+          setSelectedCustomer(null);
           toast.success('Appointment created successfully');
           setOpen(false);
           if (processPayment) {
@@ -144,6 +146,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
     setOpen(open);
     if (!open) {
       form.reset();
+      setSelectedCustomer(null);
     }
   };
 
@@ -170,18 +173,18 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
               name="phoneNumber"
               render={() => (
                 <FormItem className="gap-1">
-                  <div className="grid grid-cols-5 items-center gap-4">
-                    <FormLabel className="col-span-1.5">
+                  <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
+                    <FormLabel className="col-span-4 sm:col-span-1">
                       Customer <span className="text-red-500">*</span>
                     </FormLabel>
-                    <Popover modal className="col-span-4">
+                    <Popover modal>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           className={cn(
                             form.formState.errors['phoneNumber'] &&
                               'border-destructive focus-visible:ring-destructive',
-                            'col-span-4 w-full justify-start',
+                            'col-span-6 line-clamp-1 w-full justify-start px-1 text-start sm:col-span-4 sm:px-4',
                           )}>
                           {selectedCustomer
                             ? `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName} (${formatUSPhoneNumber(selectedCustomer)})`
@@ -222,9 +225,9 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <div className="grid grid-cols-5 items-center gap-4">
-                    <div className="col-span-1" />
-                    <FormMessage className="col-span-4" />
+                  <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
+                    <div className="col-span-4 sm:col-span-1" />
+                    <FormMessage className="col-span-6 sm:col-span-4" />
                   </div>
                 </FormItem>
               )}
@@ -235,8 +238,8 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
               name="subtotal"
               render={({field}) => (
                 <FormItem className="gap-1">
-                  <div className="grid grid-cols-5 items-center gap-4">
-                    <FormLabel className="col-span-1">
+                  <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
+                    <FormLabel className="col-span-4 sm:col-span-1">
                       Subtotal <span className="text-red-500">*</span>
                     </FormLabel>
                     <Input
@@ -244,16 +247,16 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                       className={cn(
                         form.formState.errors['subtotal'] &&
                           'border-destructive focus-visible:ring-destructive',
-                        'col-span-4',
+                        'col-span-6 sm:col-span-4',
                       )}
                       placeholder="Enter subtotal"
                       type="number"
                       min="0"
                     />
                   </div>
-                  <div className="grid grid-cols-5 items-center gap-4">
-                    <div className="col-span-1" />
-                    <FormMessage className="col-span-4" />
+                  <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
+                    <div className="col-span-4 sm:col-span-1" />
+                    <FormMessage className="col-span-6 sm:col-span-4" />
                   </div>
                 </FormItem>
               )}

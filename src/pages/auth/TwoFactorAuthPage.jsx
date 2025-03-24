@@ -83,7 +83,7 @@ const TwoFactorAuthPage = () => {
                       <InputOTPGroup>
                         {Array.from({length: 6}).map((_, index) => (
                           <InputOTPSlot
-                            className="h-11 w-11 sm:h-14 sm:w-14"
+                            className="h-11 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14"
                             key={index}
                             index={index}
                           />

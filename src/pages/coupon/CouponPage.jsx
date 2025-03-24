@@ -34,11 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  COUPON_ACTIVE_STATUS,
-  COUPON_STATUS,
-  COUPON_TYPE,
-} from '@/constants/value';
+import {COUPON_ACTIVE_STATUS, COUPON_TYPE} from '@/constants/value';
 import useDebounce from '@/hooks/use-debounce';
 import {
   useGetAllCouponsQuery,
@@ -134,35 +130,36 @@ export const columns = [
   },
   {
     accessorKey: 'status',
-    header: row => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="flex items-center justify-center gap-1">
-              <span className="font-medium">Status</span>
-              <ChevronDown className="size-5" />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <div className="flex flex-col gap-2">
-              <DropdownMenuCheckboxItem
-                checked={row.column.getFilterValue() === undefined}
-                onCheckedChange={() => row.column.setFilterValue('')}>
-                All
-              </DropdownMenuCheckboxItem>
-              {Object.values(COUPON_STATUS).map(st => (
-                <DropdownMenuCheckboxItem
-                  key={st}
-                  checked={row.column.getFilterValue() === st}
-                  onCheckedChange={() => row.column.setFilterValue(st)}>
-                  {st.replace(/_/g, ' ')}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    // header: row => {
+    //   return (
+    //     <DropdownMenu>
+    //       <DropdownMenuTrigger asChild>
+    //         <div className="flex items-center justify-center gap-1">
+    //           <span className="font-medium">Status</span>
+    //           <ChevronDown className="size-5" />
+    //         </div>
+    //       </DropdownMenuTrigger>
+    //       <DropdownMenuContent>
+    //         <div className="flex flex-col gap-2">
+    //           <DropdownMenuCheckboxItem
+    //             checked={row.column.getFilterValue() === undefined}
+    //             onCheckedChange={() => row.column.setFilterValue('')}>
+    //             All
+    //           </DropdownMenuCheckboxItem>
+    //           {Object.values(COUPON_STATUS).map(st => (
+    //             <DropdownMenuCheckboxItem
+    //               key={st}
+    //               checked={row.column.getFilterValue() === st}
+    //               onCheckedChange={() => row.column.setFilterValue(st)}>
+    //               {st.replace(/_/g, ' ')}
+    //             </DropdownMenuCheckboxItem>
+    //           ))}
+    //         </div>
+    //       </DropdownMenuContent>
+    //     </DropdownMenu>
+    //   );
+    // },
+    header: 'Status',
     cell: ({row}) => {
       if (
         !moment
@@ -308,7 +305,7 @@ const CouponPage = () => {
 
   useEffect(() => {
     setPagination(prev => ({...prev, pageIndex: 0}));
-  }, [debouncedKeyword]);
+  }, [debouncedKeyword, columnFilters]);
 
   const pagination = useMemo(
     () => ({
@@ -332,24 +329,25 @@ const CouponPage = () => {
       const {id, value} = filter;
       if (id !== 'status') {
         q[id] = value;
-      } else {
-        switch (value) {
-          case COUPON_STATUS.ACTIVE:
-            q.isActive = true;
-            break;
-          case COUPON_STATUS.INACTIVE:
-            q.isActive = false;
-            break;
-          case COUPON_STATUS.OUT_OF_USAGE:
-            q['$expr'] = JSON.stringify({$eq: ['$usedCount', '$usageLimit']});
-            break;
-          case COUPON_STATUS.EXPIRED:
-            q['validUntil[lt]'] = moment(Date.now()).utc().format('YYYY-MM-DD');
-            break;
-          default:
-            break;
-        }
       }
+      // } else {
+      //   switch (value) {
+      //     case COUPON_STATUS.ACTIVE:
+      //       q.isActive = true;
+      //       break;
+      //     case COUPON_STATUS.INACTIVE:
+      //       q.isActive = false;
+      //       break;
+      //     case COUPON_STATUS.OUT_OF_USAGE:
+      //       q['$expr'] = JSON.stringify({$eq: ['$usedCount', '$usageLimit']});
+      //       break;
+      //     case COUPON_STATUS.EXPIRED:
+      //       q['validUntil[lt]'] = moment(Date.now()).utc().format('YYYY-MM-DD');
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      // }
     });
 
     return q;

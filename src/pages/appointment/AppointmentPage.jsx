@@ -55,7 +55,7 @@ const ProcessAppointmentPaymentDialog = lazy(
   () => import('@/components/dialog/ProcessAppointmentPaymentDialog'),
 );
 
-export const columns = [
+const columns = [
   {
     accessorKey: 'customer',
     header: <div className="pl-4 text-left">Customer</div>,
@@ -137,7 +137,7 @@ export const columns = [
               <DropdownMenuCheckboxItem
                 checked={row.column.getFilterValue() === undefined}
                 onCheckedChange={() => row.column.setFilterValue('')}>
-                All
+                ALL
               </DropdownMenuCheckboxItem>
               {Object.values(APPOINTMENT_STATUS).map(st => (
                 <DropdownMenuCheckboxItem
@@ -236,13 +236,15 @@ export const columns = [
               <DropdownMenuCheckboxItem
                 checked={row.column.getFilterValue() === undefined}
                 onCheckedChange={() => row.column.setFilterValue('')}>
-                All
+                ALL
               </DropdownMenuCheckboxItem>
               {Object.values(PAYMENT_STATUS).map(st => (
                 <DropdownMenuCheckboxItem
                   key={st}
                   checked={row.column.getFilterValue() === st}
-                  onCheckedChange={() => row.column.setFilterValue(st)}>
+                  onCheckedChange={() => {
+                    row.column.setFilterValue(st);
+                  }}>
                   {st.replace(/_/g, ' ')}
                 </DropdownMenuCheckboxItem>
               ))}
@@ -344,7 +346,7 @@ const AppointmentPage = () => {
 
   useEffect(() => {
     setPagination(prev => ({...prev, pageIndex: 0}));
-  }, [debouncedKeyword]);
+  }, [debouncedKeyword, columnFilters]);
 
   const pagination = useMemo(
     () => ({
