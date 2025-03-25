@@ -29,5 +29,6 @@ export const useGetAvailableCouponByAppointmentQuery = appointmentId => {
       const res = await couponService.getAvailableByAppointment(appointmentId);
       return res.data;
     },
+    enabled: !!appointmentId.appointmentId,
   });
 };

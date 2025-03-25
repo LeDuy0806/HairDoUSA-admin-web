@@ -7,6 +7,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
+import {QUERY_KEY} from '@/constants/query-key';
 import {ROUTE} from '@/constants/route';
 import {
   APPOINTMENT_STATUS,
@@ -23,6 +24,7 @@ import {
 } from '@/services/appointment';
 import {useGetAvailableCouponByAppointmentQuery} from '@/services/coupon';
 import {zodResolver} from '@hookform/resolvers/zod';
+import {useQueryClient} from '@tanstack/react-query';
 import {AlertCircle, CircleX, Loader} from 'lucide-react';
 import {useEffect, useMemo, useState} from 'react';
 import {useForm} from 'react-hook-form';
@@ -189,10 +191,14 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
     );
   };
 
+  const queryClient = useQueryClient();
   const onSubmit = async () => {
     checkoutAppointmentMutation.mutate(appointmentId, {
       onSuccess: res => {
         if (res.success) {
+          queryClient.removeQueries({
+            queryKey: [QUERY_KEY.COUPON.GET_AVAILABLE_BY_APPOINTMENT],
+          });
           toast.success('Payment processed successfully');
           setOpen(false);
           navigate(ROUTE.APPOINTMENT.ROOT);

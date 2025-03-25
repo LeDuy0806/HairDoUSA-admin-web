@@ -159,18 +159,20 @@ const AddAppointmentDialog = ({phoneNumber, data, isEdit, defaultOpen}) => {
       }
     }
 
-    updateCustomerOfAppointmentMutation.mutate(selectedCustomer, {
-      onSuccess: res => {
-        if (res.success) {
-          // console.log('Customer updated successfully');
-        } else {
-          setCommonError(res.message);
-        }
-      },
-      onError: err => {
-        setCommonError(err?.response?.data?.message ?? 'An error occurred');
-      },
-    });
+    if (isEdit) {
+      updateCustomerOfAppointmentMutation.mutate(selectedCustomer, {
+        onSuccess: res => {
+          if (res.success) {
+            // console.log('Customer updated successfully');
+          } else {
+            setCommonError(res.message);
+          }
+        },
+        onError: err => {
+          setCommonError(err?.response?.data?.message ?? 'An error occurred');
+        },
+      });
+    }
 
     const handler = isEdit
       ? updateAppointmentMutation
