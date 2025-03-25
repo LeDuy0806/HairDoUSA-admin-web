@@ -272,10 +272,6 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
                                         key={coupon.code}
                                         value={coupon.code}
                                         onSelect={currentValue => {
-                                          console.log(
-                                            'Selected: ',
-                                            currentValue,
-                                          );
                                           form.setValue(
                                             'couponCode',
                                             currentValue ===
