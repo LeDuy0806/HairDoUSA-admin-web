@@ -261,7 +261,7 @@ const SettingsPage = () => {
               ))}
             </SelectContent>
           </Select>
-          <p className="min-w-max">of {totalPages}</p>{' '}
+          <p className="min-w-max">of {totalPages === 0 ? 1 : totalPages}</p>{' '}
           <Separator orientation="vertical" className="!h-5 w-2" />
           <p className="min-w-max">Page size</p>
           <Select

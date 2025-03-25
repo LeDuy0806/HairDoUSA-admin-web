@@ -106,14 +106,31 @@ const AddCustomerDialog = ({isEdit, data}) => {
     }
   }, [data]);
 
-  const {phoneNumber, birthDate, firstName, lastName, state, city, address, zipCode} =
-    form.watch();
+  const {
+    phoneNumber,
+    birthDate,
+    firstName,
+    lastName,
+    state,
+    city,
+    address,
+    zipCode,
+  } = form.watch();
 
   useEffect(() => {
     if (commonError) {
       setCommonError(null);
     }
-  }, [phoneNumber, birthDate, firstName, lastName, state, city, address, zipCode]);
+  }, [
+    phoneNumber,
+    birthDate,
+    firstName,
+    lastName,
+    state,
+    city,
+    address,
+    zipCode,
+  ]);
 
   const navigate = useNavigate();
   const [commonError, setCommonError] = useState(null);
@@ -195,8 +212,8 @@ const AddCustomerDialog = ({isEdit, data}) => {
           {isEdit ? 'Edit' : 'Add New Customer'}
         </Button>
       </DialogTrigger>
-      <DialogContent className="gap-8">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[80vh] flex-col gap-0 overflow-hidden p-0 sm:max-h-[90vh]">
+        <DialogHeader className="px-6 py-4">
           <DialogTitle>{isEdit ? 'Edit' : 'Add New'} Customer</DialogTitle>
           {!isEdit ? (
             <DialogDescription>
@@ -207,131 +224,133 @@ const AddCustomerDialog = ({isEdit, data}) => {
             <DialogDescription />
           )}
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-            <FormNormalField
-              form={form}
-              name="firstName"
-              label="First Name"
-              placeholder="Enter first name"
-              required
-            />
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+              <FormNormalField
+                form={form}
+                name="firstName"
+                label="First Name"
+                placeholder="Enter first name"
+                required
+              />
 
-            <FormNormalField
-              form={form}
-              name="lastName"
-              label="Last Name"
-              placeholder="Enter last name"
-              required
-            />
+              <FormNormalField
+                form={form}
+                name="lastName"
+                label="Last Name"
+                placeholder="Enter last name"
+                required
+              />
 
-            <FormPhoneField
-              form={form}
-              name="phoneNumber"
-              label="Phone Number"
-              placeholder="Enter phone number"
-              required
-            />
+              <FormPhoneField
+                form={form}
+                name="phoneNumber"
+                label="Phone Number"
+                placeholder="Enter phone number"
+                required
+              />
 
-            <FormField
-              control={form.control}
-              name="birthDate"
-              render={({field}) => (
-                <FormItem className="gap-1">
-                  <div className="relative grid grid-cols-5 items-center gap-4">
-                    <FormLabel className="col-span-2">
-                      Date of Birth <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl className="col-span-3">
-                      <Input
-                        {...field}
-                        type="date"
-                        // className="w-full [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:top-1/2 [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:-translate-y-1/2"
-                        className="w-full"
-                      />
-                    </FormControl>
-                  </div>
-                  <div className="grid grid-cols-5 items-center gap-4">
-                    <div className="col-span-2" />
-                    <FormMessage className="col-span-3" />
-                  </div>
-                </FormItem>
+              <FormField
+                control={form.control}
+                name="birthDate"
+                render={({field}) => (
+                  <FormItem className="gap-1">
+                    <div className="relative grid grid-cols-5 items-center gap-4">
+                      <FormLabel className="col-span-2">
+                        Date of Birth <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl className="col-span-3">
+                        <Input
+                          {...field}
+                          type="date"
+                          // className="w-full [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:top-1/2 [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:-translate-y-1/2"
+                          className="w-full"
+                        />
+                      </FormControl>
+                    </div>
+                    <div className="grid grid-cols-5 items-center gap-4">
+                      <div className="col-span-2" />
+                      <FormMessage className="col-span-3" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormSearchField
+                form={form}
+                name="state"
+                label="State"
+                placeholder="Select state..."
+                searchPlaceholder="Search state..."
+                options={states}
+                emptyText="No states found."
+              />
+
+              <FormSearchField
+                form={form}
+                name="city"
+                label="City"
+                placeholder="Select city..."
+                searchPlaceholder="Search city..."
+                options={citiesInState}
+                emptyText="No cities found."
+                disabled={!selectedState}
+              />
+
+              <FormNormalField
+                form={form}
+                name="address"
+                label="Address"
+                placeholder="Enter address"
+              />
+
+              <FormNormalField
+                form={form}
+                name="zipCode"
+                label="Zip Code"
+                placeholder="Enter zip code"
+                type="number"
+              />
+
+              {commonError && (
+                <Alert
+                  variant="destructive"
+                  className="border-red-500 bg-red-50/50">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{commonError}</AlertDescription>
+                </Alert>
               )}
-            />
 
-            <FormSearchField
-              form={form}
-              name="state"
-              label="State"
-              placeholder="Select state..."
-              searchPlaceholder="Search state..."
-              options={states}
-              emptyText="No states found."
-            />
-
-            <FormSearchField
-              form={form}
-              name="city"
-              label="City"
-              placeholder="Select city..."
-              searchPlaceholder="Search city..."
-              options={citiesInState}
-              emptyText="No cities found."
-              disabled={!selectedState}
-            />
-
-            <FormNormalField
-              form={form}
-              name="address"
-              label="Address"
-              placeholder="Enter address"
-            />
-
-            <FormNormalField
-              form={form}
-              name="zipCode"
-              label="Zip Code"
-              placeholder="Enter zip code"
-              type="number"
-            />
-
-            {commonError && (
-              <Alert
-                variant="destructive"
-                className="border-red-500 bg-red-50/50">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{commonError}</AlertDescription>
-              </Alert>
-            )}
-
-            <DialogFooter className="mt-8">
-              <DialogClose
-                className={
-                  !isEdit ? 'mr-auto w-full md:w-auto' : 'w-full md:w-auto'
-                }
-                asChild>
-                <Button type="button" variant="ghost" disabled={loading}>
-                  Close
-                </Button>
-              </DialogClose>
-              <Button
-                type="submit"
-                disabled={loading}
-                variant={isEdit ? 'default' : 'secondary'}>
-                {isEdit ? 'Save' : 'Confirm'}
-              </Button>
-              {!isEdit && (
+              <DialogFooter className="mt-8">
+                <DialogClose
+                  className={
+                    !isEdit ? 'mr-auto w-full md:w-auto' : 'w-full md:w-auto'
+                  }
+                  asChild>
+                  <Button type="button" variant="ghost" disabled={loading}>
+                    Close
+                  </Button>
+                </DialogClose>
                 <Button
-                  type="button"
-                  onClick={() => onContinue(form.watch(), true)}
-                  disabled={loading}>
-                  Confirm with new appointment
+                  type="submit"
+                  disabled={loading}
+                  variant={isEdit ? 'default' : 'secondary'}>
+                  {isEdit ? 'Save' : 'Confirm'}
                 </Button>
-              )}
-            </DialogFooter>
-          </form>
-        </Form>
+                {!isEdit && (
+                  <Button
+                    type="button"
+                    onClick={() => onContinue(form.watch(), true)}
+                    disabled={loading}>
+                    Confirm with new appointment
+                  </Button>
+                )}
+              </DialogFooter>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

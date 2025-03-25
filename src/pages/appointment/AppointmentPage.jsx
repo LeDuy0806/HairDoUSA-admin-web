@@ -82,7 +82,7 @@ const columns = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div className="flex justify-center gap-2">
-              <span className="font-medium">Applied coupon</span>
+              <span className="font-medium">Applied Coupon</span>
               <ChevronDown />
             </div>
           </DropdownMenuTrigger>
@@ -128,7 +128,7 @@ const columns = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div className="flex items-center justify-center gap-2">
-              <span className="font-medium">Service status</span>
+              <span className="font-medium">Service Status</span>
               <ChevronDown className="size-5" />
             </div>
           </DropdownMenuTrigger>
@@ -227,7 +227,7 @@ const columns = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div className="flex items-center justify-center gap-2">
-              <span className="font-medium">Payment status</span>
+              <span className="font-medium">Payment Status</span>
               <ChevronDown className="size-5" />
             </div>
           </DropdownMenuTrigger>
@@ -270,7 +270,7 @@ const columns = [
   },
   {
     accessorKey: 'createdAt',
-    header: 'Created at',
+    header: 'Created At',
     cell: ({row}) => (
       <p className="min-w-max">
         {moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A')}
@@ -535,7 +535,7 @@ const AppointmentPage = () => {
                 ))}
               </SelectContent>
             </Select>
-            <p className="min-w-max">of {totalPages}</p>{' '}
+            <p className="min-w-max">of {totalPages === 0 ? 1 : totalPages}</p>{' '}
             <Separator orientation="vertical" className="!h-5 w-2" />
             <p className="min-w-max">Page size</p>
             <Select

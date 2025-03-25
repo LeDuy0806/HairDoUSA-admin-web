@@ -106,7 +106,7 @@ export const columns = [
   },
   {
     accessorKey: 'createdAt',
-    header: 'Created at',
+    header: 'Created At',
     cell: ({row}) => (
       <p className="min-w-max">
         {moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A')}
@@ -181,7 +181,6 @@ const CustomerPage = () => {
   }, [pageIndex, pageSize, debouncedKeyword]);
 
   const customerQuery = useGetAllCustomersQuery(query);
-  
 
   const customers = useMemo(
     () => customerQuery.data?.data?.items ?? [],
@@ -321,7 +320,7 @@ const CustomerPage = () => {
               ))}
             </SelectContent>
           </Select>
-          <p className="min-w-max">of {totalPages}</p>{' '}
+          <p className="min-w-max">of {totalPages === 0 ? 1 : totalPages}</p>{' '}
           <Separator orientation="vertical" className="!h-5 w-2" />
           <p className="min-w-max">Page size</p>
           <Select

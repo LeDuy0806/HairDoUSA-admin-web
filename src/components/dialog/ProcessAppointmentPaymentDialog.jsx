@@ -13,6 +13,7 @@ import {
   COUPON_TYPE,
   PAYMENT_STATUS,
 } from '@/constants/value';
+import {cn} from '@/lib/utils';
 import {
   useApplyCouponMutation,
   useCheckoutAppointmentMutation,
@@ -41,6 +42,7 @@ import {
   DialogTitle,
 } from '../ui/dialog';
 import {Form, FormField, FormItem, FormLabel, FormMessage} from '../ui/form';
+import {Textarea} from '../ui/textarea';
 
 const formSchema = z.object({
   couponCode: z
@@ -327,14 +329,23 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
                       <button
                         type="button"
                         disabled={removeCouponMutation.isPending}
-                        onClick={onRemoveCoupon}
+                        onClick={
+                          appointment?.paymentStatus === PAYMENT_STATUS.UNPAID
+                            ? onRemoveCoupon
+                            : undefined
+                        }
                         className="bg-foreground flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-white disabled:cursor-not-allowed disabled:bg-gray-300">
                         {coupon?.code} - {formatCouponDiscountValue(coupon)}{' '}
-                        {removeCouponMutation.isPending ? (
-                          <Loader className="inline-block size-4 animate-spin" />
-                        ) : (
-                          <CircleX className="inline-block size-4" />
-                        )}
+                        {appointment?.paymentStatus ===
+                        PAYMENT_STATUS.UNPAID ? (
+                          <>
+                            {removeCouponMutation.isPending ? (
+                              <Loader className="inline-block size-4 animate-spin" />
+                            ) : (
+                              <CircleX className="inline-block size-4" />
+                            )}
+                          </>
+                        ) : null}
                       </button>
                     </div>
                   </>
@@ -361,6 +372,19 @@ const ProcessAppointmentPaymentDialog = ({onClose}) => {
                   </label>
                 </div>
               )}
+
+              <div className="mt-10 flex flex-col gap-2">
+                <div className="text-sm font-medium">Note:</div>
+                <Textarea
+                  readOnly
+                  className={cn(
+                    'h-[100px] resize-none',
+                    form.formState.errors['note'] &&
+                      'border-destructive focus-visible:ring-destructive',
+                  )}
+                  value={appointment?.note}
+                />
+              </div>
 
               {commonError && (
                 <Alert

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
@@ -34,6 +35,7 @@ import {Alert, AlertDescription, AlertTitle} from '../ui/alert';
 import {Input} from '../ui/input';
 import {Popover, PopoverContent, PopoverTrigger} from '../ui/popover';
 import {ScrollArea} from '../ui/scroll-area';
+import {Textarea} from '../ui/textarea';
 
 const formSchema = z.object({
   phoneNumber: z.string().nonempty('Please select a customer'),
@@ -43,6 +45,10 @@ const formSchema = z.object({
       invalid_type_error: 'Please enter subtotal',
     })
     .nonnegative('Please enter a valid number'),
+  note: z
+    .string()
+    .max(160, {message: 'Note maximum characters is 160'})
+    .optional(),
 });
 
 const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
@@ -77,6 +83,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
     defaultValues: {
       phoneNumber: '',
       subtotal: 0,
+      note: '',
     },
   });
 
@@ -120,7 +127,7 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
 
     createAppointmentMutation.mutate(
       {
-        phoneNumber: values.phoneNumber,
+        ...values,
         subtotal: Number(values.subtotal),
       },
       {
@@ -164,139 +171,170 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
           Add New Appointment
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader className="mb-4">
+      <DialogContent className="flex max-h-[80vh] flex-col gap-0 overflow-hidden p-0 sm:max-h-[90vh]">
+        <DialogHeader className="px-6 py-4">
           <DialogTitle>Add New Appointment</DialogTitle>
           <DialogDescription>
             Please enter the phone number of the customer to add a new
             appointment and apply the coupon if available.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="phoneNumber"
-              render={() => (
-                <FormItem className="gap-1">
-                  <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
-                    <FormLabel className="col-span-4 sm:col-span-1">
-                      Customer <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Popover modal>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={() => (
+                  <FormItem className="gap-1">
+                    <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
+                      <FormLabel className="col-span-3 sm:col-span-1">
+                        Customer <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <Popover modal>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              form.formState.errors['phoneNumber'] &&
+                                'border-destructive focus-visible:ring-destructive',
+                              'col-span-7 line-clamp-1 w-full justify-start px-1 text-start sm:col-span-4 sm:px-4',
+                            )}>
+                            {selectedCustomer
+                              ? `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName} (${formatUSPhoneNumber(selectedCustomer)})`
+                              : 'Select Customer'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="space-y-2">
+                          <Input
+                            value={value}
+                            onChange={e => setValue(e.target.value)}
+                          />
+                          <ScrollArea className="flex max-h-60 flex-col items-center gap-1">
+                            {getAllCustomersQuery.isFetching && (
+                              <Loader className="size-4 animate-spin" />
+                            )}
+                            {foundCustomers.length > 0 ? (
+                              foundCustomers.map(customer => (
+                                <Button
+                                  variant="outline"
+                                  key={customer._id}
+                                  className="w-full justify-start"
+                                  onClick={() => {
+                                    setSelectedCustomer(customer.phoneNumber);
+                                  }}>
+                                  <p className="line-clamp-1">
+                                    {/* {customer.lastName} - {customer.phoneNumber} */}
+                                    {customer.firstName} {customer.lastName} (
+                                    {formatUSPhoneNumber(customer.phoneNumber)})
+                                  </p>
+                                </Button>
+                              ))
+                            ) : (
+                              <span className="mt-2 text-sm">
+                                No customers found.
+                              </span>
+                            )}
+                          </ScrollArea>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
+                      <div className="col-span-3 sm:col-span-1" />
+                      <FormMessage className="col-span-7 sm:col-span-4" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="subtotal"
+                render={({field}) => (
+                  <FormItem className="gap-1">
+                    <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
+                      <FormLabel className="col-span-3 sm:col-span-1">
+                        Subtotal <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <Input
+                        {...field}
+                        className={cn(
+                          form.formState.errors['subtotal'] &&
+                            'border-destructive focus-visible:ring-destructive',
+                          'col-span-7 sm:col-span-4',
+                        )}
+                        placeholder="Enter subtotal"
+                        type="number"
+                        min="0"
+                      />
+                    </div>
+                    <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
+                      <div className="col-span-4 sm:col-span-1" />
+                      <FormMessage className="col-span-6 sm:col-span-4" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="note"
+                render={({field}) => (
+                  <FormItem className="gap-1">
+                    <div className="grid grid-cols-10 items-start gap-4 sm:grid-cols-5">
+                      <FormLabel className="col-span-3 sm:col-span-1">
+                        Note
+                      </FormLabel>
+                      <FormControl className="col-span-7 sm:col-span-4">
+                        <Textarea
+                          {...field}
+                          placeholder={'Enter appointment note...'}
                           className={cn(
-                            form.formState.errors['phoneNumber'] &&
+                            'h-[100px] resize-none',
+                            form.formState.errors['note'] &&
                               'border-destructive focus-visible:ring-destructive',
-                            'col-span-6 line-clamp-1 w-full justify-start px-1 text-start sm:col-span-4 sm:px-4',
-                          )}>
-                          {selectedCustomer
-                            ? `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName} (${formatUSPhoneNumber(selectedCustomer)})`
-                            : 'Select Customer'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="space-y-2">
-                        <Input
-                          value={value}
-                          onChange={e => setValue(e.target.value)}
+                          )}
                         />
-                        <ScrollArea className="flex max-h-60 flex-col items-center gap-1">
-                          {getAllCustomersQuery.isFetching && (
-                            <Loader className="size-4 animate-spin" />
-                          )}
-                          {foundCustomers.length > 0 ? (
-                            foundCustomers.map(customer => (
-                              <Button
-                                variant="outline"
-                                key={customer._id}
-                                className="w-full justify-start"
-                                onClick={() => {
-                                  setSelectedCustomer(customer.phoneNumber);
-                                }}>
-                                <p className="line-clamp-1">
-                                  {/* {customer.lastName} - {customer.phoneNumber} */}
-                                  {customer.firstName} {customer.lastName} (
-                                  {formatUSPhoneNumber(customer.phoneNumber)})
-                                </p>
-                              </Button>
-                            ))
-                          ) : (
-                            <span className="mt-2 text-sm">
-                              No customers found.
-                            </span>
-                          )}
-                        </ScrollArea>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
-                    <div className="col-span-4 sm:col-span-1" />
-                    <FormMessage className="col-span-6 sm:col-span-4" />
-                  </div>
-                </FormItem>
+                      </FormControl>
+                    </div>
+                    <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
+                      <div className="col-span-3 sm:col-span-1" />
+                      <FormMessage className="col-span-7 sm:col-span-4" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              {commonError && (
+                <Alert
+                  variant="destructive"
+                  className="border-red-500 bg-red-50/50">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{commonError}</AlertDescription>
+                </Alert>
               )}
-            />
 
-            <FormField
-              control={form.control}
-              name="subtotal"
-              render={({field}) => (
-                <FormItem className="gap-1">
-                  <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
-                    <FormLabel className="col-span-4 sm:col-span-1">
-                      Subtotal <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Input
-                      {...field}
-                      className={cn(
-                        form.formState.errors['subtotal'] &&
-                          'border-destructive focus-visible:ring-destructive',
-                        'col-span-6 sm:col-span-4',
-                      )}
-                      placeholder="Enter subtotal"
-                      type="number"
-                      min="0"
-                    />
-                  </div>
-                  <div className="grid grid-cols-10 items-center gap-4 sm:grid-cols-5">
-                    <div className="col-span-4 sm:col-span-1" />
-                    <FormMessage className="col-span-6 sm:col-span-4" />
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            {commonError && (
-              <Alert
-                variant="destructive"
-                className="border-red-500 bg-red-50/50">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{commonError}</AlertDescription>
-              </Alert>
-            )}
-
-            <DialogFooter className="mt-8 justify-end">
-              <DialogClose className="mr-auto w-full md:w-auto" asChild>
-                <Button type="button" variant="ghost" disabled={loading}>
-                  Close
+              <DialogFooter className="mt-8 justify-end">
+                <DialogClose className="mr-auto w-full md:w-auto" asChild>
+                  <Button type="button" variant="ghost" disabled={loading}>
+                    Close
+                  </Button>
+                </DialogClose>
+                <Button type="submit" disabled={loading} variant="secondary">
+                  Confirm
                 </Button>
-              </DialogClose>
-              <Button type="submit" disabled={loading} variant="secondary">
-                Confirm
-              </Button>
-              <Button
-                type="button"
-                disabled={loading}
-                variant="default"
-                onClick={() => onConfirm(form.watch(), true)}>
-                Confirm and process payment
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                <Button
+                  type="button"
+                  disabled={loading}
+                  variant="default"
+                  onClick={() => onConfirm(form.watch(), true)}>
+                  Confirm and process payment
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

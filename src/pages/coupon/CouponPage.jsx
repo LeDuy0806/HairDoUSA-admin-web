@@ -74,7 +74,7 @@ const columns = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div className="flex items-center justify-center gap-1">
-              <span className="font-medium">Coupon type</span>
+              <span className="font-medium">Coupon Type</span>
               <ChevronDown className="size-5" />
             </div>
           </DropdownMenuTrigger>
@@ -102,7 +102,7 @@ const columns = [
   },
   {
     accessorKey: 'validFrom',
-    header: 'Valid from',
+    header: 'Valid From',
     cell: ({row}) => (
       <p className="min-w-max">
         {moment(row.getValue('validFrom')).format('MM-DD-YYYY')}
@@ -111,7 +111,7 @@ const columns = [
   },
   {
     accessorKey: 'validUntil',
-    header: 'Valid to',
+    header: 'Valid To',
     cell: ({row}) => (
       <p className="min-w-max">
         {moment(row.getValue('validUntil')).format('MM-DD-YYYY')}
@@ -120,12 +120,22 @@ const columns = [
   },
   {
     accessorKey: 'usageLimit',
-    header: 'Usage limit',
+    header: 'Usage Limit',
     cell: ({row}) => row.getValue('usageLimit'),
   },
   {
+    accessorKey: 'minAmount',
+    header: 'Min Amount',
+    cell: ({row}) => row.getValue('minAmount'),
+  },
+  {
+    accessorKey: 'maxUsagePerUser',
+    header: 'Max Per User',
+    cell: ({row}) => row.getValue('maxUsagePerUser'),
+  },
+  {
     accessorKey: 'usedCount',
-    header: 'Used count',
+    header: 'Used Count',
     cell: ({row}) => row.getValue('usedCount'),
   },
   {
@@ -187,7 +197,7 @@ const columns = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div className="flex items-center justify-center gap-2">
-              <span className="font-medium">Active status</span>
+              <span className="font-medium">Active Status</span>
               <ChevronDown className="size-5" />
             </div>
           </DropdownMenuTrigger>
@@ -253,7 +263,7 @@ const columns = [
   },
   {
     accessorKey: 'createdAt',
-    header: 'Created at',
+    header: 'Created At',
     cell: ({row}) => (
       <p className="min-w-max">
         {moment(row.getValue('createdAt')).format('MM-DD-YYYY hh:mm A')}
@@ -365,8 +375,8 @@ const CouponPage = () => {
 
   const [columnVisibility, setColumnVisibility] = useState({
     createdAt: false,
-    couponType: false,
     usageLimit: false,
+    minAmount: false,
   });
 
   const table = useReactTable({
@@ -499,7 +509,7 @@ const CouponPage = () => {
                 ))}
               </SelectContent>
             </Select>
-            <p className="min-w-max">of {totalPages}</p>{' '}
+            <p className="min-w-max">of {totalPages === 0 ? 1 : totalPages}</p>{' '}
             <Separator orientation="vertical" className="!h-5 w-2" />
             <p className="min-w-max">Page size</p>
             <Select

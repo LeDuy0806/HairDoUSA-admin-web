@@ -125,118 +125,120 @@ const AddAdminDialog = ({isEdit, data}) => {
           {isEdit ? 'Edit' : 'Add New Admin'}
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader className="mb-4">
+      <DialogContent className="flex max-h-[80vh] flex-col gap-0 overflow-hidden p-0 sm:max-h-[90vh]">
+        <DialogHeader className="px-6 py-4">
           <DialogTitle>Add New Admin</DialogTitle>
           <DialogDescription>
             Please add a new admin by these information. You cannot add if the
             admin information already exists in the system.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormNormalField
-              form={form}
-              name="name"
-              label="Admin Name"
-              placeholder="Enter admin name"
-              required
-            />
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormNormalField
+                form={form}
+                name="name"
+                label="Admin Name"
+                placeholder="Enter admin name"
+                required
+              />
 
-            <FormNormalField
-              form={form}
-              name="email"
-              label="Email"
-              placeholder="Enter email"
-              required
-            />
+              <FormNormalField
+                form={form}
+                name="email"
+                label="Email"
+                placeholder="Enter email"
+                required
+              />
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({field}) => (
-                <FormItem className="gap-1">
-                  <div className="grid grid-cols-5 items-center gap-4">
-                    <FormLabel className="col-span-2">Password</FormLabel>
-                    <FormControl className="col-span-3">
-                      <div className="relative">
-                        <InputPassword
-                          {...field}
-                          placeholder="Enter your password"
-                          className={cn(
-                            form.formState.errors['password'] &&
-                              'border-destructive focus-visible:ring-destructive',
-                            '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-                          )}
-                        />
-                      </div>
-                    </FormControl>
-                  </div>
-                  <div className="grid grid-cols-5 items-center gap-2">
-                    <div className="col-span-2" />
-                    <FormDescription className="col-span-3 pl-2 text-xs">
-                      Default password is 123456
-                    </FormDescription>
-                    <div className="col-span-2" />
-                    <FormMessage className="col-span-3" />
-                  </div>
-                </FormItem>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({field}) => (
+                  <FormItem className="gap-1">
+                    <div className="grid grid-cols-5 items-center gap-4">
+                      <FormLabel className="col-span-2">Password</FormLabel>
+                      <FormControl className="col-span-3">
+                        <div className="relative">
+                          <InputPassword
+                            {...field}
+                            placeholder="Enter your password"
+                            className={cn(
+                              form.formState.errors['password'] &&
+                                'border-destructive focus-visible:ring-destructive',
+                              '[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                            )}
+                          />
+                        </div>
+                      </FormControl>
+                    </div>
+                    <div className="grid grid-cols-5 items-center gap-2">
+                      <div className="col-span-2" />
+                      <FormDescription className="col-span-3 pl-2 text-xs">
+                        Default password is 123456
+                      </FormDescription>
+                      <div className="col-span-2" />
+                      <FormMessage className="col-span-3" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({field}) => (
+                  <FormItem className="gap-1">
+                    <div className="grid grid-cols-5 items-center gap-4">
+                      <FormLabel className="col-span-2">
+                        Confirm Password
+                      </FormLabel>
+                      <FormControl className="col-span-3">
+                        <div className="relative">
+                          <InputPassword
+                            {...field}
+                            placeholder="Re-enter your password"
+                            className={
+                              form.formState.errors['confirmPassword']
+                                ? 'border-destructive focus-visible:ring-destructive'
+                                : ''
+                            }
+                          />
+                        </div>
+                      </FormControl>
+                    </div>
+                    <div className="grid grid-cols-5 items-center gap-4">
+                      <div className="col-span-2" />
+                      <FormMessage className="col-span-3" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              {commonError && (
+                <Alert
+                  variant="destructive"
+                  className="border-red-500 bg-red-50/50">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{commonError}</AlertDescription>
+                </Alert>
               )}
-            />
 
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({field}) => (
-                <FormItem className="gap-1">
-                  <div className="grid grid-cols-5 items-center gap-4">
-                    <FormLabel className="col-span-2">
-                      Confirm Password
-                    </FormLabel>
-                    <FormControl className="col-span-3">
-                      <div className="relative">
-                        <InputPassword
-                          {...field}
-                          placeholder="Re-enter your password"
-                          className={
-                            form.formState.errors['confirmPassword']
-                              ? 'border-destructive focus-visible:ring-destructive'
-                              : ''
-                          }
-                        />
-                      </div>
-                    </FormControl>
-                  </div>
-                  <div className="grid grid-cols-5 items-center gap-4">
-                    <div className="col-span-2" />
-                    <FormMessage className="col-span-3" />
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            {commonError && (
-              <Alert
-                variant="destructive"
-                className="border-red-500 bg-red-50/50">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{commonError}</AlertDescription>
-              </Alert>
-            )}
-
-            <DialogFooter className="mt-8 justify-end">
-              <DialogClose asChild>
-                <Button type="button" variant="ghost" disabled={loading}>
-                  Close
+              <DialogFooter className="mt-8 justify-end">
+                <DialogClose asChild>
+                  <Button type="button" variant="ghost" disabled={loading}>
+                    Close
+                  </Button>
+                </DialogClose>
+                <Button type="submit" isLoading={loading} variant="default">
+                  {isEdit ? 'Save' : 'Confirm'}
                 </Button>
-              </DialogClose>
-              <Button type="submit" isLoading={loading} variant="default">
-                {isEdit ? 'Save' : 'Confirm'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              </DialogFooter>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

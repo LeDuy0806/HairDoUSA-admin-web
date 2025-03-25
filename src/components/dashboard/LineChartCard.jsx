@@ -5,16 +5,23 @@ import {
 } from '@/components/ui/chart';
 import {Checkbox} from '@/components/ui/checkbox';
 import moment from 'moment-timezone';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Line, LineChart, XAxis} from 'recharts';
 
 const RealtimeTimeDisplay = () => {
   const [currentTime, setCurrentTime] = useState(
-    moment().format('MMMM Do YYYY, hh:mm:ss'),
+    moment().format('MMMM Do YYYY, HH:mm:ss'),
   );
-  setInterval(() => {
-    setCurrentTime(moment().format('MMMM Do YYYY, hh:mm:ss'));
-  }, 1000);
+  useEffect(() => {
+    const internalID = setInterval(() => {
+      setCurrentTime(moment().format('MMMM Do YYYY, HH:mm:ss'));
+    }, 1000);
+
+    return () => {
+      clearInterval(internalID);
+    };
+  }, []);
+
   return (
     <p className="text-muted-foreground text-sm font-medium">
       Current Time: {currentTime}
