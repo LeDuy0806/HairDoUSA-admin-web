@@ -36,6 +36,26 @@ export const useUpdateAppointmentMutation = id => {
   });
 };
 
+export const useUpdateCustomerOfAppointmentMutation = id => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async identifier => {
+      const res = await appointmentService.updateCustomerOfAppointment(
+        id,
+        identifier,
+      );
+
+      if (res.data.success) {
+        await queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.APPOINTMENT.GET_ALL],
+        });
+      }
+
+      return res.data;
+    },
+  });
+};
+
 export const useDeleteAppointmentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({

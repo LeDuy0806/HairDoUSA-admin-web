@@ -6,6 +6,8 @@ export const appointmentService = {
   getDetail: async id => await instance.get(`/appointment/${id}`),
   create: async data => await instance.post('/appointment', data),
   update: async (id, data) => await instance.put(`/appointment/${id}`, data),
+  updateCustomerOfAppointment: async (id, identifier) =>
+    await instance.put(`/appointment/${id}/customer/${identifier}`),
   delete: async id => await instance.delete(`/appointment/${id}`),
   checkout: async id => await instance.post(`/appointment/checkout/${id}`),
   applyCoupon: async (id, couponCode) =>

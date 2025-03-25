@@ -303,6 +303,14 @@ const columns = [
                     : 'Checkout'}
                 </Link>
               </Button>
+              {row.getValue('paymentStatus') === 'UNPAID' ? (
+                <AddAppointmentDialog
+                  defaultOpen={false}
+                  isEdit
+                  data={appointment}
+                  // phoneNumber={appointmentPhoneNumber}
+                />
+              ) : null}
               <ConfirmDeleteAppointmentDialog
                 id={appointment._id}
                 onSuccess={() => setOpen(false)}

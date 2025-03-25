@@ -21,11 +21,15 @@ import {
 import {ROUTE} from '@/constants/route';
 import useDebounce from '@/hooks/use-debounce';
 import {cn} from '@/lib/utils';
-import {useCreateAppointmentMutation} from '@/services/appointment';
+import {
+  useCreateAppointmentMutation,
+  useUpdateAppointmentMutation,
+  useUpdateCustomerOfAppointmentMutation,
+} from '@/services/appointment';
 import {useGetAllCustomersQuery} from '@/services/customer';
 import {formatUSPhoneNumber} from '@/utils/PhoneNumberFormatter';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {AlertCircle, Loader, PlusIcon} from 'lucide-react';
+import {AlertCircle, Loader, PencilLine, PlusIcon} from 'lucide-react';
 import {useEffect, useMemo, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {useNavigate} from 'react-router';
@@ -51,7 +55,7 @@ const formSchema = z.object({
     .optional(),
 });
 
-const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
+const AddAppointmentDialog = ({phoneNumber, data, isEdit, defaultOpen}) => {
   const [open, setOpen] = useState(false);
 
   const [value, setValue] = useState('');
@@ -59,6 +63,10 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
   const debouncedValue = useDebounce(value, 500);
 
   const createAppointmentMutation = useCreateAppointmentMutation();
+  const updateAppointmentMutation = useUpdateAppointmentMutation(data?._id);
+  const updateCustomerOfAppointmentMutation =
+    useUpdateCustomerOfAppointmentMutation(data?._id);
+
   const getAllCustomersQuery = useGetAllCustomersQuery({
     phoneNumber: debouncedValue?.replace('+', ''),
     select: 'firstName,lastName,phoneNumber',
@@ -102,9 +110,35 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
     }
   }, [phoneNumber]);
 
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        phoneNumber: data.customer?.phoneNumber,
+        subtotal: data.subtotal,
+        note: data.note,
+      });
+      setSelectedCustomer(data.customer?.phoneNumber);
+    }
+  }, [data]);
+
+  // const {phoneNumber, subtotal, note} = form.watch();
+
+  // useEffect(() => {
+  //   if (commonError) {
+  //     setCommonError(null);
+  //   }
+  // }, [
+  //   phoneNumber,
+  //   subtotal,
+  //   note,
+  // ]);
+
   const [commonError, setCommonError] = useState(null);
 
-  const loading = createAppointmentMutation.isPending;
+  const loading =
+    createAppointmentMutation.isPending ||
+    updateAppointmentMutation.isPending ||
+    updateCustomerOfAppointmentMutation.isPending;
 
   const foundCustomers = useMemo(
     () => getAllCustomersQuery.data?.data?.items ?? [],
@@ -125,30 +159,55 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
       }
     }
 
-    createAppointmentMutation.mutate(
-      {
-        ...values,
-        subtotal: Number(values.subtotal),
+    updateCustomerOfAppointmentMutation.mutate(selectedCustomer, {
+      onSuccess: res => {
+        if (res.success) {
+          console.log('Customer updated successfully');
+        } else {
+          setCommonError(res.message);
+        }
       },
-      {
-        onSuccess: res => {
-          if (res.success) {
-            form.reset();
-            setSelectedCustomer(null);
-            toast.success('Appointment created successfully');
-            setOpen(false);
-            if (processPayment) {
-              navigate(ROUTE.APPOINTMENT.PAYMENT(res.data._id));
-            }
-          } else {
-            setCommonError(res.message);
+      onError: err => {
+        setCommonError(err?.response?.data?.message ?? 'An error occurred');
+      },
+    });
+
+    const handler = isEdit
+      ? updateAppointmentMutation
+      : createAppointmentMutation;
+
+    const mutateParams = isEdit
+      ? {
+          subtotal: Number(values.subtotal),
+          note: values.note,
+        }
+      : {
+          ...values,
+          subtotal: Number(values.subtotal),
+        };
+
+    handler.mutate(mutateParams, {
+      onSuccess: res => {
+        if (res.success) {
+          form.reset();
+          setSelectedCustomer(null);
+          toast.success(
+            isEdit
+              ? 'Appointment updated successfully'
+              : 'Appointment created successfully',
+          );
+          setOpen(false);
+          if (processPayment) {
+            navigate(ROUTE.APPOINTMENT.PAYMENT(res.data._id));
           }
-        },
-        onError: err => {
-          setCommonError(err?.response?.data?.message ?? 'An error occurred');
-        },
+        } else {
+          setCommonError(res.message);
+        }
       },
-    );
+      onError: err => {
+        setCommonError(err?.response?.data?.message ?? 'An error occurred');
+      },
+    });
   };
 
   const onSubmit = async values => {
@@ -166,18 +225,22 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
   return (
     <Dialog open={open} onOpenChange={handleOpenChanged}>
       <DialogTrigger asChild>
-        <Button variant="default">
-          <PlusIcon />
-          Add New Appointment
+        <Button variant={isEdit ? 'outline' : 'default'}>
+          {isEdit ? <PencilLine /> : <PlusIcon />}
+          {isEdit ? 'Edit' : 'Add New Appointment'}
         </Button>
       </DialogTrigger>
       <DialogContent className="flex max-h-[80vh] flex-col gap-0 overflow-hidden p-0 sm:max-h-[90vh]">
         <DialogHeader className="px-6 py-4">
-          <DialogTitle>Add New Appointment</DialogTitle>
-          <DialogDescription>
-            Please enter the phone number of the customer to add a new
-            appointment and apply the coupon if available.
-          </DialogDescription>
+          <DialogTitle>{isEdit ? 'Edit' : 'Add New'} Appointment</DialogTitle>
+          {isEdit ? (
+            <DialogDescription />
+          ) : (
+            <DialogDescription>
+              Please enter the phone number of the customer to add a new
+              appointment and apply the coupon if available.
+            </DialogDescription>
+          )}
         </DialogHeader>
         <div className="flex-1 overflow-y-auto px-6 py-4">
           <Form {...form}>
@@ -201,7 +264,10 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
                               'col-span-7 line-clamp-1 w-full justify-start px-1 text-start sm:col-span-4 sm:px-4',
                             )}>
                             {selectedCustomer
-                              ? `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName} (${formatUSPhoneNumber(selectedCustomer)})`
+                              ? selectedCustomerIns?.firstName &&
+                                selectedCustomerIns?.lastName
+                                ? `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName} (${formatUSPhoneNumber(selectedCustomer)})`
+                                : 'Deleted Customer'
                               : 'Select Customer'}
                           </Button>
                         </PopoverTrigger>
@@ -316,21 +382,30 @@ const AddAppointmentDialog = ({phoneNumber, defaultOpen}) => {
               )}
 
               <DialogFooter className="mt-8 justify-end">
-                <DialogClose className="mr-auto w-full md:w-auto" asChild>
+                <DialogClose
+                  className={
+                    !isEdit ? 'mr-auto w-full md:w-auto' : 'w-full md:w-auto'
+                  }
+                  asChild>
                   <Button type="button" variant="ghost" disabled={loading}>
                     Close
                   </Button>
                 </DialogClose>
-                <Button type="submit" disabled={loading} variant="secondary">
-                  Confirm
-                </Button>
                 <Button
-                  type="button"
+                  type="submit"
                   disabled={loading}
-                  variant="default"
-                  onClick={() => onConfirm(form.watch(), true)}>
-                  Confirm and process payment
+                  variant={isEdit ? 'default' : 'secondary'}>
+                  {isEdit ? 'Save' : 'Confirm'}
                 </Button>
+                {!isEdit ? (
+                  <Button
+                    type="button"
+                    disabled={loading}
+                    variant="default"
+                    onClick={() => onConfirm(form.watch(), true)}>
+                    Confirm and process payment
+                  </Button>
+                ) : null}
               </DialogFooter>
             </form>
           </Form>
