@@ -57,6 +57,7 @@ const formSchema = z.object({
 
 const AddAppointmentDialog = ({phoneNumber, data, isEdit, defaultOpen}) => {
   const [open, setOpen] = useState(false);
+  const [customerSelectOpen, setCustomerSelectOpen] = useState(false);
 
   const [value, setValue] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -256,7 +257,10 @@ const AddAppointmentDialog = ({phoneNumber, data, isEdit, defaultOpen}) => {
                       <FormLabel className="col-span-3 sm:col-span-1">
                         Customer <span className="text-red-500">*</span>
                       </FormLabel>
-                      <Popover modal>
+                      <Popover
+                        open={customerSelectOpen}
+                        onOpenChange={setCustomerSelectOpen}
+                        modal>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -266,9 +270,8 @@ const AddAppointmentDialog = ({phoneNumber, data, isEdit, defaultOpen}) => {
                               'col-span-7 line-clamp-1 w-full justify-start px-1 text-start sm:col-span-4 sm:px-4',
                             )}>
                             {selectedCustomer
-                              ? selectedCustomerIns?.firstName &&
-                                selectedCustomerIns?.lastName
-                                ? `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName} (${formatUSPhoneNumber(selectedCustomer)})`
+                              ? selectedCustomerIns?.firstName
+                                ? `${selectedCustomerIns?.firstName} ${selectedCustomerIns?.lastName || ''} (${formatUSPhoneNumber(selectedCustomer)})`
                                 : 'Deleted Customer'
                               : 'Select Customer'}
                           </Button>
@@ -290,6 +293,7 @@ const AddAppointmentDialog = ({phoneNumber, data, isEdit, defaultOpen}) => {
                                   className="w-full justify-start"
                                   onClick={() => {
                                     setSelectedCustomer(customer.phoneNumber);
+                                    setCustomerSelectOpen(false);
                                   }}>
                                   <p className="line-clamp-1">
                                     {/* {customer.lastName} - {customer.phoneNumber} */}

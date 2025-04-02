@@ -64,7 +64,7 @@ const columns = [
       return (
         <div className="min-w-max pl-4 text-left">
           {customer
-            ? `${customer?.firstName} ${customer?.lastName} (${formatUSPhoneNumber(customer?.phoneNumber)})`
+            ? `${customer?.firstName} ${customer?.lastName || ''} (${formatUSPhoneNumber(customer?.phoneNumber)})`
             : 'Deleted Customer'}
         </div>
       );

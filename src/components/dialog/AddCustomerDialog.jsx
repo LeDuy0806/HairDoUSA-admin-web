@@ -32,7 +32,7 @@ import {
 import {zodResolver} from '@hookform/resolvers/zod';
 import {AlertCircle, PencilLine, PlusIcon} from 'lucide-react';
 import moment from 'moment-timezone';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {useNavigate} from 'react-router';
 import {toast} from 'sonner';
@@ -40,7 +40,7 @@ import {z} from 'zod';
 
 const formSchema = z.object({
   firstName: z.string().nonempty('Please enter first name'),
-  lastName: z.string().nonempty('Please enter last name'),
+  lastName: z.string(),
   phoneNumber: z.string().nonempty('Please enter phone number'),
   birthDate: z.string().optional().nullable(),
   state: z.string().optional(),
@@ -56,7 +56,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
       firstName: '',
       lastName: '',
       phoneNumber: '',
-      birthDate: '2000-01-01',
+      birthDate: '',
       state: '',
       city: '',
       address: '',
@@ -67,6 +67,25 @@ const AddCustomerDialog = ({isEdit, data}) => {
   const states = Object.keys(citiesByState);
   const [open, setOpen] = useState(false);
   const [citiesInState, setCitiesInState] = useState([]);
+
+  const cityInputRef = useRef(null);
+  const addressInputRef = useRef(null);
+
+  const handleStateSelected = () => {
+    if (cityInputRef.current) {
+      setTimeout(() => {
+        cityInputRef.current.setOpen(true);
+      }, 100);
+    }
+  };
+
+  const handleCitySelected = () => {
+    setTimeout(() => {
+      if (addressInputRef.current) {
+        addressInputRef.current.focus();
+      }
+    }, 200); //gives the DOM time to update before attempting to focus the element.
+  };
 
   const selectedState = form.watch('state');
   useEffect(() => {
@@ -101,7 +120,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
           : data.phoneNumber,
         birthDate: data.birthDate
           ? moment(data.birthDate).format('YYYY-MM-DD')
-          : '2000-01-01',
+          : '',
       });
     }
   }, [data]);
@@ -240,7 +259,6 @@ const AddCustomerDialog = ({isEdit, data}) => {
                 name="lastName"
                 label="Last Name"
                 placeholder="Enter last name"
-                required
               />
 
               <FormPhoneField
@@ -258,7 +276,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
                   <FormItem className="gap-1">
                     <div className="relative grid grid-cols-5 items-center gap-4">
                       <FormLabel className="col-span-2">
-                        Date of Birth <span className="text-red-500">*</span>
+                        Date of Birth
                       </FormLabel>
                       <FormControl className="col-span-3">
                         <Input
@@ -285,6 +303,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
                 searchPlaceholder="Search state..."
                 options={states}
                 emptyText="No states found."
+                onValueSelected={handleStateSelected}
               />
 
               <FormSearchField
@@ -296,6 +315,8 @@ const AddCustomerDialog = ({isEdit, data}) => {
                 options={citiesInState}
                 emptyText="No cities found."
                 disabled={!selectedState}
+                onValueSelected={handleCitySelected}
+                ref={cityInputRef}
               />
 
               <FormNormalField
@@ -303,6 +324,7 @@ const AddCustomerDialog = ({isEdit, data}) => {
                 name="address"
                 label="Address"
                 placeholder="Enter address"
+                ref={addressInputRef}
               />
 
               <FormNormalField

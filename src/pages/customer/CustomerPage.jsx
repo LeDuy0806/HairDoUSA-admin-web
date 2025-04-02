@@ -50,7 +50,7 @@ export const columns = [
     accessorKey: 'lastName',
     header: 'Last Name',
     cell: ({row}) => (
-      <div className="text-left">{row.getValue('lastName')}</div>
+      <div className="text-left">{row.getValue('lastName') || '-'}</div>
     ),
   },
   {
@@ -65,11 +65,14 @@ export const columns = [
   {
     accessorKey: 'birthDate',
     header: 'Birth Date',
-    cell: ({row}) => (
-      <div className="min-w-max text-left">
-        {moment(row.getValue('birthDate')).format('MM-DD-YYYY')}
-      </div>
-    ),
+    cell: ({row}) => {
+      const birthDate = row.getValue('birthDate');
+      return (
+        <div className="min-w-max text-left">
+          {birthDate ? moment(birthDate).format('MM-DD-YYYY') : '-'}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'state',
